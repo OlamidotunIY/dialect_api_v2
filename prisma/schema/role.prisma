@@ -1,0 +1,10 @@
+model Role {
+    id          String @id @default(auto()) @map("_id") @db.ObjectId
+    name        String
+    workspaceId String @db.ObjectId
+
+    // Relations
+    workspaceMembers WorkspaceMember[] // A role can be assigned to multiple members
+    workspace        Workspace         @relation(fields: [workspaceId], references: [id])
+    Permissions      Permission[]
+}

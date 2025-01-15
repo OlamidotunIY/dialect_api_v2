@@ -1,0 +1,29 @@
+model Stream {
+    id          String  @id @default(auto()) @map("_id") @db.ObjectId
+    name        String
+    description String?
+    workspaceId String  @db.ObjectId
+
+    // Relations
+    workspace     Workspace       @relation(fields: [workspaceId], references: [id])
+    streamMembers streamMembers[]
+    projects      Project[]
+
+    // Indexes
+    @@index([workspaceId])
+}
+
+model streamMembers {
+    id       String @id @default(auto()) @map("_id") @db.ObjectId
+    userId   String @db.ObjectId
+    streamId String @db.ObjectId
+    role     String
+
+    // Relations
+    user   User   @relation(fields: [userId], references: [id])
+    stream Stream @relation(fields: [streamId], references: [id])
+
+    // Indexes
+    @@index([userId])
+    @@index([streamId])
+}

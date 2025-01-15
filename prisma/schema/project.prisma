@@ -1,0 +1,19 @@
+model Project {
+    id          String    @id @default(auto()) @map("_id") @db.ObjectId
+    name        String
+    description String?
+    streamId    String    @db.ObjectId
+    title       String
+    status      String    @default("Not Started")
+    dueDate     DateTime?
+    priority    String    @default("Low")
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+
+    // Relations
+    stream Stream @relation(fields: [streamId], references: [id])
+    tasks  Task[]
+
+    // Indexes
+    @@index([streamId])
+}

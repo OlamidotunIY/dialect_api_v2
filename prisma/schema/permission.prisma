@@ -1,0 +1,13 @@
+model Permission {
+    id           String       @id @default(auto()) @map("_id") @db.ObjectId
+    name         String // Permission name (e.g., "edit", "manageRoles", etc.)
+    value        Boolean      @default(false) // Default value for the permission (false or true)
+    resourceType ResourceType // Type of resource the permission belongs to (workspace, channel, etc.)
+    roleId       String?      @db.ObjectId
+
+    // Many-to-many relation with Role
+    Role Role? @relation(fields: [roleId], references: [id])
+
+    // Indexes
+    @@index([roleId])
+}

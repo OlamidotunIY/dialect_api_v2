@@ -1,0 +1,38 @@
+
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["prismaSchemaFolder"]
+}
+
+datasource db {
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
+}
+
+// Enums
+
+enum TaskStatus {
+    NOT_STARTED
+    IN_PROGRESS
+    COMPLETED
+}
+
+enum Priority {
+    LOW
+    MEDIUM
+    HIGH
+}
+
+enum SubscriptionPlan {
+    FREE
+    BASIC
+    PRO
+}
+
+enum ResourceType {
+    WORKSPACE
+    CHANNEL
+    STREAM
+    PROJECT
+    TASK
+}
