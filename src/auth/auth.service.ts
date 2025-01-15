@@ -34,7 +34,7 @@ export class AuthService {
     }
 
     const userExists = await this.prisma.user.findUnique({
-      where: { id: payload.userId },
+      where: { id: payload.sub },
     });
 
     if (!userExists) {
@@ -61,7 +61,7 @@ export class AuthService {
   }
 
   private async issueTokens(user: User, res: Response) {
-    const payload = { fullname: user.fullname, userId: user.id };
+    const payload = { fullname: user.fullname, sub: user.id };
 
     const accessToken = this.jwtService.sign(
       { ...payload },

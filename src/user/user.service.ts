@@ -1,4 +1,20 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.services';
 
 @Injectable()
-export class UserService {}
+export class UserService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async updateProfile(userId: string, fullname: string, picture: string) {
+    if (picture) {
+      return this.prisma.user.update({
+        where: { id: userId },
+        data: { fullname, picture },
+      });
+    }
+    return await this.prisma.user.update({
+      where: { id: userId },
+      data: { fullname },
+    });
+  }
+}
