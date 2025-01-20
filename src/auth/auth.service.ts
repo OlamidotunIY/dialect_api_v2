@@ -91,7 +91,7 @@ export class AuthService {
       where: { email: loginDto.email },
     });
 
-    if (user && bcrypt.compare(loginDto.password, user.password)) {
+    if (user && (await bcrypt.compare(loginDto.password, user.password))) {
       return user;
     }
     return null;
