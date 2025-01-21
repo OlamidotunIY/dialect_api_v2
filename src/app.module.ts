@@ -12,7 +12,7 @@ import { TokenService } from './token/token.service';
 
 const pubSub = new RedisPubSub({
   connection: {
-    host: 'localhost',
+    host:process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT || '6379', 10),
     retryStrategy: (times) => {
       // reconnect after

@@ -1,9 +1,29 @@
 
 services:
-  redis:
-    image: redis:latest
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nestjs-backend
     ports:
-      - '6379:6379'
+      - "3500:3500"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - NODE_ENV=production
+    depends_on:
+      - redis
+    networks:
+      - app-network
 
-volumes:
-  dialect-redis-data:
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
