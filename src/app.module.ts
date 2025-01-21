@@ -36,6 +36,7 @@ const pubSub = new RedisPubSub({
         return {
           installSubscriptionHandlers: true,
           playground: true,
+          introspection: true,
           autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
           sortSchema: true,
           subscription: {
