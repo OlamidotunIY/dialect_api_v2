@@ -33,16 +33,17 @@ const pubSub = new RedisPubSub({
         configService: ConfigService,
         tokenService: TokenService,
       ) => {
+        const isProduction = configService.get('NODE_ENV') === 'production';
         return {
           installSubscriptionHandlers: true,
-          playground: true,
-          introspection: true,
+          playground: !isProduction,
           autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
           sortSchema: true,
           subscription: {
             'graphql-ws': true,
             'subscriptions-transport-ws': true,
           },
+          introspection: !isProduction,
           onConnect: (connectionParams) => {
             const token = tokenService.extractToken(connectionParams);
             if (!token) {
