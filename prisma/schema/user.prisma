@@ -10,13 +10,13 @@ model User {
     twoFactorEnabled      Boolean  @default(false)
     twoFactorSecret       String?
     twoFactorSecretAnswer String?
-    defaultWorkspaceId    String?
+    defaultWorkspaceId    String?  @db.ObjectId
     createdAt             DateTime @default(now())
     updatedAt             DateTime @updatedAt
 
     // Relations
-    ownedWorkspaces Workspace[]       @relation("OwnedWorkspaces")
-    workspaces      WorkspaceMember[]
-    streams         streamMembers[]
-    assignedTasks  TaskAssignment[]
+    ownedWorkspaces  Workspace[]       @relation("OwnedWorkspaces")
+    workspaces       WorkspaceMember[]
+    streams          streamMembers[]
+    assignedTasks    TaskAssignment[]
 }

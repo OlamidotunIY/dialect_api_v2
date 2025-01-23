@@ -20,7 +20,7 @@ export class AuthService {
   ) {}
 
   async refreshToken(req: Request, res: Response) {
-    const refreshToken = req.cookies['refresh-token'];
+    const refreshToken = req.cookies['dialect-refresh-token'];
     if (!refreshToken) {
       throw new UnauthorizedException('refresh token not found');
     }
@@ -53,7 +53,7 @@ export class AuthService {
       },
     );
 
-    res.cookie('access-token', accessToken, {
+    res.cookie('dialect-access-token', accessToken, {
       httpOnly: true,
     });
 
@@ -76,14 +76,14 @@ export class AuthService {
       expiresIn: '7d',
     });
 
-    res.cookie('access-token', accessToken, {
+    res.cookie('dialect-access-token', accessToken, {
       httpOnly: true,
     });
-    res.cookie('refresh-token', refreshToken, {
+    res.cookie('dialect-refresh-token', refreshToken, {
       httpOnly: true,
     });
 
-    return { user };
+    return { user, auth: { accessToken, refreshToken } };
   }
 
   async validateUser(loginDto: LoginDto) {
@@ -131,8 +131,8 @@ export class AuthService {
   }
 
   async logout(res: Response) {
-    res.clearCookie('access-token');
-    res.clearCookie('refresh-token');
+    res.clearCookie('dialect-access-token');
+    res.clearCookie('dialect-refresh-token');
     return { message: 'Logged out' };
   }
 }

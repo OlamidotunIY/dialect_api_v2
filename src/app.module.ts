@@ -9,6 +9,8 @@ import { join } from 'path';
 import { ConfigService, ConfigModule } from '@nestjs/config';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { TokenService } from './token/token.service';
+import { WorkspaceService } from './workspace/workspace.service';
+import { WorkspaceModule } from './workspace/workspace.module';
 
 const pubSub = new RedisPubSub({
   connection: {
@@ -67,8 +69,9 @@ const pubSub = new RedisPubSub({
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    WorkspaceModule,
   ],
   controllers: [AppController],
-  providers: [AppService, TokenService],
+  providers: [AppService, TokenService, WorkspaceService],
 })
 export class AppModule {}

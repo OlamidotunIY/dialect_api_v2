@@ -14,6 +14,13 @@ export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
   @UseGuards(GraphqlAuthGuard)
+  @Query(() => User)
+  async me(@Context() context: { req: Request }) {
+    const userId = context.req.user.sub;
+    return this.userService.getUserData(userId);
+  }
+
+  @UseGuards(GraphqlAuthGuard)
   @Mutation(() => User)
   async updateProfile(
     @Args('fullname') fullname: string,

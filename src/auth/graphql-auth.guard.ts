@@ -38,6 +38,6 @@ export class GraphqlAuthGuard implements CanActivate {
   }
 
   private extractTokenFromCookie(request: Request): string | undefined {
-    return request.cookies?.access_token;
+    return request.cookies?.['dialect-access-token'];
   }
 }
