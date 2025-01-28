@@ -2,6 +2,11 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Auth {
+  accessToken: String!
+  refreshToken: String!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
@@ -13,6 +18,7 @@ input LoginDto {
 }
 
 type LoginResponse {
+  auth: Auth!
   user: User
 }
 
@@ -26,6 +32,7 @@ type Mutation {
 
 type Query {
   hello: String!
+  me: User!
 }
 
 input RegisterDto {
@@ -36,6 +43,7 @@ input RegisterDto {
 }
 
 type RegisterResponse {
+  auth: Auth!
   user: User
 }
 
@@ -43,13 +51,14 @@ type RegisterResponse {
 scalar Upload
 
 type User {
+  Workspace: Workspace!
   createdAt: DateTime
   defaultWorkspaceId: String
   email: String!
   enabledAI: Boolean!
   fullname: String!
   id: String!
-  password: String!
+  password: String
   picture: String
   preferredLanguage: String!
   twoFactorEnabled: Boolean!
@@ -57,4 +66,16 @@ type User {
   twoFactorSecretAnswer: String
   updatedAt: DateTime
   voice_id: String
+}
+
+type Workspace {
+  defaultStreamId: String!
+  description: String!
+  id: String!
+  inviteLink: String!
+  inviteLinkActive: Boolean!
+  logo: String!
+  name: String!
+  ownerId: String!
+  teamSize: Float!
 }

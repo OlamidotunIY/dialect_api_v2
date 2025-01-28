@@ -77,10 +77,12 @@ export class AuthService {
     });
 
     res.cookie('dialect-access-token', accessToken, {
-      httpOnly: true,
+      // httpOnly: true,
+      domain: '.localhost',
     });
     res.cookie('dialect-refresh-token', refreshToken, {
-      httpOnly: true,
+      // httpOnly: true,
+      domain: '.localhost',
     });
 
     return { user, auth: { accessToken, refreshToken } };

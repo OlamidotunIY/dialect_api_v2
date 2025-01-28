@@ -15,7 +15,7 @@ import { WorkspaceModule } from './workspace/workspace.module';
 const pubSub = new RedisPubSub({
   connection: {
     host:process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || '6379', 10),
+    port: parseInt(process.env.REDIS_PORT || '6379'),
     retryStrategy: (times) => {
       // reconnect after
       return Math.min(times * 50, 2000);

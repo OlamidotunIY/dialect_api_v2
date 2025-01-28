@@ -1,4 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import { Workspace, WorkspaceMember } from 'src/workspace/workspace.type';
 
 @ObjectType()
 export class User {
@@ -43,4 +44,10 @@ export class User {
 
   @Field({ nullable: true })
   updatedAt?: Date;
+
+  @Field(() => [Workspace], { nullable: true })
+  ownedWorkspaces?: Workspace[];
+
+  @Field(() => [WorkspaceMember], { nullable: true })
+  workspaces?: WorkspaceMember[];
 }
