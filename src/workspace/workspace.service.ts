@@ -146,8 +146,13 @@ export class WorkspaceService {
 
         // send email to user
 
-        const subject = 'You have been invited to join a workspace';
-        const html = ``;
+        const subject = `You have been invited to join ${workspace.name} workspace`;
+        const link = `${this.configService.get('FRONTEND_URL')}/invite/${token}`;
+        const html = `
+<p>Hi <strong>${user.fullname}</strong>,</p>
+<p><br>You&apos;ve been invited to join the workspace <strong>${workspace.name}</strong>. Click the link below to accept the invite and start collaborating:</p>
+<p><br><a href="${link}" target="_blank" rel="noopener noreferrer">Accept Invite Link</a></p>
+<p>Looking forward to having you on board!</p>`;
 
         await this.emailService.sendMail(email, subject, html);
       } else {
@@ -163,9 +168,14 @@ export class WorkspaceService {
           },
         });
 
-        const inviteLink = `${this.configService.get('FRONTEND_URL')}/invite/${token}`;
-        const subject = 'You have been invited to join a workspace';
-        const html = ``;
+        const link = `${this.configService.get('FRONTEND_URL')}/register?inviteToken=${token}`;
+        const subject =
+          `You have been invited to join ${workspace.name} workspace`;
+        const html = `
+<p>Hi <strong>${user.fullname}</strong>,</p>
+<p><br>You&apos;ve been invited to join the workspace <strong>${workspace.name}</strong>. To accept the invite and get started, please sign up using the link below:</p>
+<p><br><a href="${link}" target="_blank" rel="noopener noreferrer">Sign Up & Accept Invite Link</a></p>
+<p>We’re excited to welcome you!</p>`;
 
         await this.emailService.sendMail(email, subject, html);
       }
