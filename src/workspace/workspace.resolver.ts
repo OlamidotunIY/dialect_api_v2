@@ -38,13 +38,19 @@ export class WorkspaceResolver {
     @Args('logo', { type: () => GraphQLUpload, nullable: true })
     logo: GraphQLUpload.FileUpload,
   ) {
-    const imagePath = logo ? await this.storeImageAndGetUrl(logo) : '';
-
-    return this.workspaceService.createWorkspace(
-      name,
-      context.req.user.sub,
-      imagePath,
-    );
+    if (logo) {
+      const imagePath = await this.storeImageAndGetUrl(logo);
+      return this.workspaceService.createWorkspace(
+        name,
+        context.req.user.sub,
+        imagePath,
+      );
+    } else
+      return this.workspaceService.createWorkspace(
+        name,
+        context.req.user.sub,
+        null,
+      );
   }
 
   @UseFilters(GraphQLErrorFilter)
@@ -100,6 +106,4 @@ export class WorkspaceResolver {
   async inviteMembers(@Args('data') data: inviteMembersDto) {
     return this.workspaceService.inviteMembers(data);
   }
-
-  
 }

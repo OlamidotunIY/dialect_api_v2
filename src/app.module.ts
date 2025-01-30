@@ -22,6 +22,7 @@ import { TaskModule } from './task/task.module';
 import { EmailService } from './email/email.service';
 import { PermissionService } from './permission/permission.service';
 import { PrismaService } from './prisma.services';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 const pubSub = new RedisPubSub({
   connection: {
@@ -36,6 +37,10 @@ const pubSub = new RedisPubSub({
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      serveRoot: '/',
+    }),
     AuthModule,
     UserModule,
     GraphQLModule.forRootAsync({

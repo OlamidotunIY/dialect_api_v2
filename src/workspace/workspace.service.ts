@@ -26,7 +26,7 @@ export class WorkspaceService {
     });
   }
 
-  async createWorkspace(name: string, sub: string, imagePath: string) {
+  async createWorkspace(name: string, sub: string, imagePath?: string) {
     let workspace = await this.prisma.workspace.create({
       data: {
         name,
