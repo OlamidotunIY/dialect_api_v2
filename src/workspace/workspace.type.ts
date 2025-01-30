@@ -1,56 +1,109 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Role } from 'src/roles/roles.type';
+import { Stream } from 'src/stream/stream.types';
 import { User } from 'src/user/user.type';
 
 @ObjectType()
 export class Workspace {
   @Field()
-  id?: string;
+  id: string;
 
   @Field()
-  name?: string;
+  name: string;
 
-  @Field()
+  @Field({ nullable: true })
   description?: string;
 
-  @Field()
+  @Field({ nullable: true })
   teamSize?: number;
 
   @Field()
   ownerId: string;
 
-  @Field()
-  defaultStreamId: string;
+  @Field({ nullable: true })
+  defaultStreamId?: number;
 
-  @Field()
-  inviteLink: string;
+  @Field({ nullable: true })
+  inviteLink?: string;
 
   @Field()
   inviteLinkActive: boolean;
 
-  @Field()
+  @Field({ nullable: true })
   logo?: string;
+
+  @Field()
+  subscriptionPlan: string; // Enum or scalar
+
+  @Field({ nullable: true })
+  subscriptionExpiryDate?: Date;
+
+  @Field()
+  aiEnabled: boolean;
+
+  @Field({ nullable: true })
+  stripeCustomerId?: string;
+
+  @Field({ nullable: true })
+  stripeSubscriptionId?: string;
+
+  @Field({ nullable: true })
+  subscriptiontrialEnd?: Date;
+
+  @Field()
+  createdAt: Date;
+
+  @Field()
+  updatedAt: Date;
+
+  // Relations
+  @Field(() => User)
+  owner: User;
+
+  @Field(() => [WorkspaceMember])
+  members: WorkspaceMember[];
+
+  @Field(() => [Stream])
+  streams: Stream[];
+
+  @Field(() => [Role])
+  roles: Role[];
 }
 
 @ObjectType()
 export class WorkspaceMember {
   @Field()
-  id?: string;
+  id: string;
 
   @Field()
-  userId?: string;
+  userId: string;
 
   @Field()
-  workspaceId?: string;
+  workspaceId: string;
 
-  @Field({ nullable: true })
-  role?: string;
+  @Field()
+  roleId: string;
 
-  @Field({ nullable: true })
-  createdAt?: Date;
+  @Field(() => WorkspaceMemberStatus)
+  status: WorkspaceMemberStatus; // Default: "pending"
 
-  @Field({ nullable: true })
-  updatedAt?: Date;
+  // Relations
+  @Field(() => User)
+  user: User;
 
-  @Field(() => Workspace, { nullable: true })
-  workspace?: Workspace; // Relation to Workspace
+  @Field(() => Workspace)
+  workspace: Workspace;
+
+  @Field(() => Role)
+  role: Role;
 }
+
+export enum WorkspaceMemberStatus {
+  PENDING = 'pending',
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+}
+
+registerEnumType(WorkspaceMemberStatus, {
+  name: 'WorkspaceMemberStatus',
+});

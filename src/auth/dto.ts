@@ -21,6 +21,10 @@ export class RegisterDto {
   @IsNotEmpty({ message: 'Email is required.' })
   @IsEmail({}, { message: 'Email must be valid.' })
   email: string;
+
+  @Field()
+  @IsString({ message: 'Invite token must be a string.' })
+  inviteToken?: string;
 }
 
 @InputType()

@@ -117,6 +117,40 @@ export class AuthService {
       },
     });
 
+    // Handle invite token
+    if (registerDto.inviteToken) {
+      const invite = await this.prisma.workspaceInvite.findFirst({
+        where: {
+          token: registerDto.inviteToken,
+          email: registerDto.email,
+          status: 'pending',
+          expiresAt: { gte: new Date() }, // Ensure token is not expired
+        },
+      });
+
+      if (invite) {
+        // Accept the invite and add the user as a workspace member
+        const workspace = await this.prisma.workspace.findUnique({
+          where: { id: invite.workspaceId },
+        });
+
+        await this.prisma.workspaceMember.create({
+          data: {
+            userId: user.id,
+            workspaceId: invite.workspaceId,
+            status: 'ACTIVE',
+            roleId: workspace.defaultRoleId, // Assign default role
+          },
+        });
+
+        // Mark invite as accepted
+        await this.prisma.workspaceInvite.update({
+          where: { id: invite.id },
+          data: { status: 'accepted' },
+        });
+      }
+    }
+
     return this.issueTokens(user, res);
   }
 

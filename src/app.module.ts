@@ -11,10 +11,21 @@ import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { TokenService } from './token/token.service';
 import { WorkspaceService } from './workspace/workspace.service';
 import { WorkspaceModule } from './workspace/workspace.module';
+import { RolesService } from './roles/roles.service';
+import { RolesModule } from './roles/roles.module';
+import { StreamService } from './stream/stream.service';
+import { StreamModule } from './stream/stream.module';
+import { ProjectService } from './project/project.service';
+import { ProjectModule } from './project/project.module';
+import { TaskService } from './task/task.service';
+import { TaskModule } from './task/task.module';
+import { EmailService } from './email/email.service';
+import { PermissionService } from './permission/permission.service';
+import { PrismaService } from './prisma.services';
 
 const pubSub = new RedisPubSub({
   connection: {
-    host:process.env.REDIS_HOST || 'localhost',
+    host: process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT || '6379'),
     retryStrategy: (times) => {
       // reconnect after
@@ -70,8 +81,23 @@ const pubSub = new RedisPubSub({
       isGlobal: true,
     }),
     WorkspaceModule,
+    RolesModule,
+    StreamModule,
+    ProjectModule,
+    TaskModule,
   ],
   controllers: [AppController],
-  providers: [AppService, TokenService, WorkspaceService],
+  providers: [
+    AppService,
+    TokenService,
+    WorkspaceService,
+    RolesService,
+    StreamService,
+    ProjectService,
+    TaskService,
+    EmailService,
+    PermissionService,
+    PrismaService,
+  ],
 })
 export class AppModule {}

@@ -1,4 +1,176 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { PrismaService } from 'src/prisma.services';
+import { addMemberDto, inviteMembersDto, UpdateWorkspaceDto } from './dto';
+import { EmailService } from 'src/email/email.service';
+import { RolesService } from 'src/roles/roles.service';
+import { randomBytes } from 'crypto';
 
 @Injectable()
-export class WorkspaceService {}
+export class WorkspaceService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+    private readonly emailService: EmailService,
+    private readonly rolesService: RolesService,
+  ) {}
+
+  private async generateInviteLink() {
+    const randomString = randomBytes(30).toString('hex');
+    return randomString;
+  }
+
+  async getWorkspace(id: string) {
+    return this.prisma.workspace.findUnique({
+      where: { id },
+    });
+  }
+
+  async createWorkspace(name: string, sub: string, imagePath: string) {
+    let workspace = await this.prisma.workspace.create({
+      data: {
+        name,
+        logo: imagePath,
+        owner: {
+          connect: { id: sub },
+        },
+      },
+    });
+
+    // create default roles
+
+    const role = await this.rolesService.createRoles(workspace.id, {
+      name: 'Admin',
+    });
+
+    workspace = await this.prisma.workspace.update({
+      where: { id: workspace.id },
+      data: {
+        defaultRoleId: role.id,
+      },
+    });
+
+    return workspace;
+  }
+
+  async updateWorkspace(id: string, data: UpdateWorkspaceDto) {
+    return this.prisma.workspace.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async deleteWorkspace(id: string) {
+    return this.prisma.workspace.delete({
+      where: { id },
+    });
+  }
+
+  async addMembers(data: addMemberDto) {
+    const { workspaceId, WorkspaceMemberId } = data;
+    const workspace = await this.prisma.workspace.findUnique({
+      where: { id: workspaceId },
+    });
+
+    if (!workspace) {
+      throw new BadRequestException('Workspace not found');
+    }
+
+    return this.prisma.workspace.update({
+      where: { id: workspaceId },
+      data: {
+        members: {
+          update: {
+            where: {
+              id: WorkspaceMemberId,
+            },
+            data: {
+              status: 'ACTIVE',
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async inviteMembers(data: inviteMembersDto) {
+    const { workspaceId, userEmails } = data;
+    const workspace = await this.prisma.workspace.findUnique({
+      where: { id: workspaceId },
+      include: {
+        roles: true,
+      },
+    });
+
+    if (!workspace) {
+      throw new BadRequestException('Workspace not found');
+    }
+
+    const token = await this.generateInviteLink();
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+    userEmails.forEach(async (email) => {
+      const user = await this.prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (user) {
+        const existingWorkspaceMember = this.prisma.workspaceMember.findFirst({
+          where: {
+            workspaceId,
+            userId: user.id,
+          },
+        });
+
+        if (existingWorkspaceMember) {
+          throw new BadRequestException(
+            `${email} is already a member of this workspace`,
+          );
+        }
+
+        await this.prisma.workspaceMember.create({
+          data: {
+            workspace: {
+              connect: { id: workspaceId },
+            },
+            user: {
+              connect: { id: user.id },
+            },
+            role: {
+              connect: {
+                id: workspace.defaultRoleId,
+              },
+            },
+          },
+        });
+
+        // send email to user
+
+        const subject = 'You have been invited to join a workspace';
+        const html = ``;
+
+        await this.emailService.sendMail(email, subject, html);
+      } else {
+        await this.prisma.workspaceInvite.create({
+          data: {
+            workspace: {
+              connect: { id: workspaceId },
+            },
+            email,
+            token,
+            expiresAt,
+            status: 'PENDING',
+          },
+        });
+
+        const inviteLink = `${this.configService.get('FRONTEND_URL')}/invite/${token}`;
+        const subject = 'You have been invited to join a workspace';
+        const html = ``;
+
+        await this.emailService.sendMail(email, subject, html);
+      }
+    });
+
+    return true;
+  }
+}

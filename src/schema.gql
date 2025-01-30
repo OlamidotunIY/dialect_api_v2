@@ -7,10 +7,26 @@ type Auth {
   refreshToken: String!
 }
 
+type ChecklistItem {
+  content: String!
+  id: String!
+  isDone: Boolean!
+  task: Task!
+  taskId: String!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+type Dependency {
+  dependsOn: String!
+  dependsOnTask: Task!
+  id: String!
+  task: Task!
+  taskId: String!
+}
 
 input LoginDto {
   email: String!
@@ -23,11 +39,40 @@ type LoginResponse {
 }
 
 type Mutation {
+  addMembers(data: addMemberDto!): Workspace!
+  createWorkspace(logo: Upload, name: String!): Workspace!
+  deleteWorkspace(id: String!): Workspace!
+  inviteMembers(data: inviteMembersDto!): Workspace!
   login(loginInput: LoginDto!): LoginResponse!
   logout: String!
   refreshToken: String!
   register(registerInput: RegisterDto!): RegisterResponse!
   updateProfile(file: Upload, fullname: String!): User!
+  updateWorkspace(aiEnabled: Boolean, description: String, id: String!, inviteLinkActive: Boolean, logo: Upload, name: String, teamSize: Float): Workspace!
+}
+
+type Permission {
+  Role: Role
+  id: String!
+  name: String!
+  resourceType: ResourceType!
+  roleId: String
+  value: Boolean!
+}
+
+type Project {
+  createdAt: DateTime!
+  description: String
+  dueDate: DateTime
+  id: String!
+  name: String!
+  priority: String!
+  status: String!
+  stream: Stream!
+  streamId: String!
+  tasks: [Task!]!
+  title: String!
+  updatedAt: DateTime!
 }
 
 type Query {
@@ -39,6 +84,7 @@ input RegisterDto {
   confirmPassword: String!
   email: String!
   fullname: String!
+  inviteToken: String!
   password: String!
 }
 
@@ -47,17 +93,78 @@ type RegisterResponse {
   user: User
 }
 
+enum ResourceType {
+  CHANNEL
+  OTHER
+  WORKSPACE
+}
+
+type Role {
+  Permissions: [Permission!]!
+  id: String!
+  name: String!
+  workspace: Workspace!
+  workspaceId: String!
+  workspaceMembers: [WorkspaceMember!]!
+}
+
+type Stream {
+  description: String
+  id: String!
+  name: String!
+  projects: [Project!]!
+  streamMembers: [StreamMembers!]!
+  workspace: Workspace!
+  workspaceId: String!
+}
+
+type StreamMembers {
+  id: String!
+  role: String!
+  stream: Stream!
+  streamId: String!
+  user: User!
+  userId: String!
+}
+
+type Task {
+  assignedUsers: [TaskAssignment!]!
+  checklistItems: [ChecklistItem!]!
+  createdAt: DateTime!
+  dependencies: [Dependency!]!
+  dependents: [Dependency!]!
+  description: String
+  dueDate: DateTime
+  id: String!
+  name: String!
+  parent: Task
+  priority: String!
+  project: Project!
+  projectId: String!
+  status: String!
+  subtasks: [Task!]!
+  updatedAt: DateTime!
+}
+
+type TaskAssignment {
+  id: String!
+  task: Task!
+  taskId: String!
+  user: User!
+  userId: String!
+}
+
 """The `Upload` scalar type represents a file upload."""
 scalar Upload
 
 type User {
-  Workspace: Workspace!
   createdAt: DateTime
   defaultWorkspaceId: String
   email: String!
   enabledAI: Boolean!
   fullname: String!
   id: String!
+  ownedWorkspaces: [Workspace!]
   password: String
   picture: String
   preferredLanguage: String!
@@ -66,16 +173,56 @@ type User {
   twoFactorSecretAnswer: String
   updatedAt: DateTime
   voice_id: String
+  workspaces: [WorkspaceMember!]
 }
 
 type Workspace {
-  defaultStreamId: String!
-  description: String!
+  aiEnabled: Boolean!
+  createdAt: DateTime!
+  defaultStreamId: Float
+  description: String
   id: String!
-  inviteLink: String!
+  inviteLink: String
   inviteLinkActive: Boolean!
-  logo: String!
+  logo: String
+  members: [WorkspaceMember!]!
   name: String!
+  owner: User!
   ownerId: String!
-  teamSize: Float!
+  roles: [Role!]!
+  streams: [Stream!]!
+  stripeCustomerId: String
+  stripeSubscriptionId: String
+  subscriptionExpiryDate: DateTime
+  subscriptionPlan: String!
+  subscriptiontrialEnd: DateTime
+  teamSize: Float
+  updatedAt: DateTime!
+}
+
+type WorkspaceMember {
+  id: String!
+  role: Role!
+  roleId: String!
+  status: WorkspaceMemberStatus!
+  user: User!
+  userId: String!
+  workspace: Workspace!
+  workspaceId: String!
+}
+
+enum WorkspaceMemberStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+}
+
+input addMemberDto {
+  WorkspaceMemberId: String!
+  workspaceId: String!
+}
+
+input inviteMembersDto {
+  userEmails: [String!]!
+  workspaceId: String!
 }
