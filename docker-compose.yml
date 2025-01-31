@@ -13,6 +13,7 @@ services:
     volumes:
       - ./src:/usr/src/app/src   # Bind mount your local code to the container
       - /usr/src/app/node_modules # Ignore node_modules to avoid conflicts
+      - ./public/images:/app/public/images
     depends_on:
       - redis
     networks:

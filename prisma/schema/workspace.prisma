@@ -6,7 +6,7 @@ model Workspace {
     teamSize               Int?
     defaultStreamId        Int?
     inviteLink             String?          @unique
-    inviteLinkActive       Boolean          @default(false)
+    inviteLinkActive       Boolean          @default(true)
     logo                   String?
     subscriptionPlan       SubscriptionPlan @default(FREE)
     subscriptionExpiryDate DateTime?
@@ -16,7 +16,7 @@ model Workspace {
     subscriptiontrialEnd   DateTime?
     createdAt              DateTime         @default(now())
     updatedAt              DateTime         @updatedAt
-    defaultRoleId          String?           @db.ObjectId
+    defaultRoleId          String?          @db.ObjectId
 
     // Relations
     owner           User              @relation("OwnedWorkspaces", fields: [ownerId], references: [id])

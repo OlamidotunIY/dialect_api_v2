@@ -121,13 +121,10 @@ export class PermissionService {
       },
     ];
 
-    return await this.prisma.permission.createMany({
-      data: defaultPermissions.map((permission) => ({
-        ...permission,
-        Role: {
-          connect: { id: roleId },
-        },
-      })),
-    });
+    for (const permission of defaultPermissions) {
+      await this.createPermission(permission, roleId);
+    }
+
+    return;
   }
 }

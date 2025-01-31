@@ -5,6 +5,7 @@ import { addMemberDto, inviteMembersDto, UpdateWorkspaceDto } from './dto';
 import { EmailService } from 'src/email/email.service';
 import { RolesService } from 'src/roles/roles.service';
 import { randomBytes } from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class WorkspaceService {
@@ -15,9 +16,27 @@ export class WorkspaceService {
     private readonly rolesService: RolesService,
   ) {}
 
-  private async generateInviteLink() {
+  private async generateInviteToken() {
     const randomString = randomBytes(30).toString('hex');
     return randomString;
+  }
+
+  private async generateInviteLink(): Promise<string> {
+    let inviteLink: string;
+    let isUnique = false;
+
+    while (!isUnique) {
+      // Generate a random invite link using UUID
+      inviteLink = uuidv4();
+      // Check if the invite link is already in use
+      const existingWorkspace = await this.prisma.workspace.findUnique({
+        where: { inviteLink },
+      });
+
+      isUnique = !existingWorkspace;
+    }
+
+    return inviteLink;
   }
 
   async getWorkspace(id: string) {
@@ -27,10 +46,13 @@ export class WorkspaceService {
   }
 
   async createWorkspace(name: string, sub: string, imagePath?: string) {
+    const inviteLink = await this.generateInviteLink();
+
     let workspace = await this.prisma.workspace.create({
       data: {
         name,
         logo: imagePath,
+        inviteLink,
         owner: {
           connect: { id: sub },
         },
@@ -106,7 +128,7 @@ export class WorkspaceService {
       throw new BadRequestException('Workspace not found');
     }
 
-    const token = await this.generateInviteLink();
+    const token = await this.generateInviteToken();
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
     userEmails.forEach(async (email) => {
@@ -169,8 +191,7 @@ export class WorkspaceService {
         });
 
         const link = `${this.configService.get('FRONTEND_URL')}/register?inviteToken=${token}`;
-        const subject =
-          `You have been invited to join ${workspace.name} workspace`;
+        const subject = `You have been invited to join ${workspace.name} workspace`;
         const html = `
 <p>Hi <strong>${user.fullname}</strong>,</p>
 <p><br>You&apos;ve been invited to join the workspace <strong>${workspace.name}</strong>. To accept the invite and get started, please sign up using the link below:</p>
