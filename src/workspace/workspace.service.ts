@@ -72,6 +72,22 @@ export class WorkspaceService {
       },
     });
 
+    await this.prisma.workspaceMember.create({
+      data: {
+        workspace: {
+          connect: { id: workspace.id },
+        },
+        user: {
+          connect: { id: sub },
+        },
+        role: {
+          connect: {
+            id: workspace.defaultRoleId,
+          },
+        },
+      },
+    });
+
     return workspace;
   }
 
@@ -193,7 +209,7 @@ export class WorkspaceService {
         const link = `${this.configService.get('FRONTEND_URL')}/register?inviteToken=${token}`;
         const subject = `You have been invited to join ${workspace.name} workspace`;
         const html = `
-<p>Hi <strong>${user.fullname}</strong>,</p>
+<p>Hi,</p>
 <p><br>You&apos;ve been invited to join the workspace <strong>${workspace.name}</strong>. To accept the invite and get started, please sign up using the link below:</p>
 <p><br><a href="${link}" target="_blank" rel="noopener noreferrer">Sign Up & Accept Invite Link</a></p>
 <p>We’re excited to welcome you!</p>`;
@@ -202,6 +218,6 @@ export class WorkspaceService {
       }
     });
 
-    return true;
+    return workspace;
   }
 }
