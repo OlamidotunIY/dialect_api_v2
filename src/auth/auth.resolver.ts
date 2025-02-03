@@ -33,7 +33,7 @@ export class AuthResolver {
     return this.authService.login(loginDto, context.res);
   }
 
-  @Mutation(() => String)
+  @Mutation(() => Boolean)
   async logout(@Context() context: { res: Response }) {
     return this.authService.logout(context.res);
   }

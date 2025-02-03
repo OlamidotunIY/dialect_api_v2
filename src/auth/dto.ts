@@ -23,7 +23,6 @@ export class RegisterDto {
   email: string;
 
   @Field()
-  @IsString({ message: 'Invite token must be a string.' })
   inviteToken?: string;
 }
 

@@ -67,25 +67,37 @@ export class AuthService {
       { ...payload },
       {
         secret: this.configService.get<string>('ACCESS_TOKEN_SECRET'),
-        expiresIn: '150sec',
+        expiresIn: '30d',
       },
     );
 
     const refreshToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
-      expiresIn: '7d',
+      expiresIn: '90d',
     });
 
     res.cookie('dialect-access-token', accessToken, {
       // httpOnly: true,
       domain: '.localhost',
+      maxAge: 30 * 24 * 60 * 60 * 1000,
     });
     res.cookie('dialect-refresh-token', refreshToken, {
       // httpOnly: true,
       domain: '.localhost',
+      maxAge: 90 * 24 * 60 * 60 * 1000,
     });
 
-    return { user, auth: { accessToken, refreshToken } };
+    const updatedUser = await this.prisma.user.findUnique({
+      where: { id: user.id },
+      include: { workspaces: true },
+    });
+
+    return {
+      user: {
+        ...updatedUser,
+      },
+      auth: { accessToken, refreshToken },
+    };
   }
 
   async validateUser(loginDto: LoginDto) {
@@ -115,6 +127,7 @@ export class AuthService {
         fullname: registerDto.fullname,
         password: hatchedPassword,
       },
+      include: { workspaces: true },
     });
 
     // Handle invite token
@@ -169,6 +182,6 @@ export class AuthService {
   async logout(res: Response) {
     res.clearCookie('dialect-access-token');
     res.clearCookie('dialect-refresh-token');
-    return { message: 'Logged out' };
+    return true;
   }
 }
