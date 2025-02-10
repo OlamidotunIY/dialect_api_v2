@@ -20,16 +20,6 @@ export class PermissionService {
   async createDefaultPermissions(roleId: string) {
     const defaultPermissions: createPermissionDto[] = [
       {
-        name: 'create',
-        value: true,
-        resourceType: ResourceType.WORKSPACE,
-      },
-      {
-        name: 'read',
-        value: true,
-        resourceType: ResourceType.WORKSPACE,
-      },
-      {
         name: 'update',
         value: true,
         resourceType: ResourceType.WORKSPACE,
@@ -40,6 +30,16 @@ export class PermissionService {
         resourceType: ResourceType.WORKSPACE,
       },
       {
+        name: 'add-members',
+        value: true,
+        resourceType: ResourceType.WORKSPACE,
+      },
+      {
+        name: 'remove-member',
+        value: true,
+        resourceType: ResourceType.WORKSPACE,
+      },
+      {
         name: 'create',
         value: true,
         resourceType: ResourceType.CHANNEL,
@@ -60,6 +60,16 @@ export class PermissionService {
         resourceType: ResourceType.CHANNEL,
       },
       {
+        name: "add-members",
+        value: true,
+        resourceType: ResourceType.CHANNEL,
+      },
+      {
+        name: "remove-member",
+        value: true,
+        resourceType: ResourceType.CHANNEL,
+      },
+      {
         name: 'create',
         value: true,
         resourceType: ResourceType.STREAM,
@@ -78,6 +88,16 @@ export class PermissionService {
         name: 'delete',
         value: true,
         resourceType: ResourceType.STREAM,
+      },
+      {
+        name: "add-members",
+        value: true,
+        resourceType: ResourceType.STREAM
+      },
+      {
+        name: "remove-member",
+        value: true,
+        resourceType: ResourceType.STREAM
       },
       {
         name: 'create',
@@ -118,6 +138,36 @@ export class PermissionService {
         name: 'delete',
         value: true,
         resourceType: ResourceType.TASK,
+      },
+      {
+        name: 'create',
+        value: true,
+        resourceType: ResourceType.TEAM
+      },
+      {
+        name: 'read',
+        value: true,
+        resourceType: ResourceType.TEAM,
+      },
+      {
+        name: 'update',
+        value: true,
+        resourceType: ResourceType.TEAM,
+      },
+      {
+        name: 'delete',
+        value: true,
+        resourceType: ResourceType.TEAM,
+      },
+      {
+        name: "add-members",
+        value: true,
+        resourceType: ResourceType.TEAM,
+      },
+      {
+        name: "remove-member",
+        value: true,
+        resourceType: ResourceType.TEAM,
       },
     ];
 
@@ -126,5 +176,18 @@ export class PermissionService {
     }
 
     return;
+  }
+
+  async getPermissions(roleId: string) {
+    return this.prisma.permission.findMany({
+      where: { roleId },
+    });
+  }
+
+  async updatePermission(id: string, value: boolean) {
+    return this.prisma.permission.update({
+      where: { id },
+      data: { value },
+    });
   }
 }

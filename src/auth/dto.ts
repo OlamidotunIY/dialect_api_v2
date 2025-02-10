@@ -1,5 +1,11 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
 @InputType()
 export class RegisterDto {
@@ -22,7 +28,8 @@ export class RegisterDto {
   @IsEmail({}, { message: 'Email must be valid.' })
   email: string;
 
-  @Field()
+  @Field({ nullable: true }) // Mark the field as nullable for GraphQL
+  @IsOptional() // Make the field optional for validation
   inviteToken?: string;
 }
 

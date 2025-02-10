@@ -47,4 +47,11 @@ export class RolesService {
 
     return role;
   }
+
+  async updateRole(id: string, data: createRolesDto) {
+    return this.prisma.role.update({
+      where: { id },
+      data,
+    });
+  }
 }

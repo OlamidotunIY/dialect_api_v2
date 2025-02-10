@@ -1,0 +1,9 @@
+model Team {
+    id       String @id @default(auto()) @map("_id") @db.ObjectId
+    name     String
+    streamId String @db.ObjectId
+
+    // Relations
+    stream Stream @relation(fields: [streamId], references: [id])
+    members streamMembers[]
+}

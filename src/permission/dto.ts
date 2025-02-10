@@ -7,6 +7,7 @@ export enum ResourceType {
   STREAM = 'STREAM',
   PROJECT = 'PROJECT',
   TASK = 'TASK',
+  TEAM = 'TEAM'
 }
 
 // Register the enum with GraphQL

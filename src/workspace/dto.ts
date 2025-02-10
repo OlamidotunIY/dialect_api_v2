@@ -3,6 +3,7 @@ import {
   IsArray,
   IsBoolean,
   IsNotEmpty,
+  IsOptional,
   IsString,
   MinLength,
 } from 'class-validator';
@@ -18,6 +19,7 @@ export class CreateWorkspaceDto {
 
   @Field({ nullable: true })
   @IsString({ message: 'Logo must be a string' })
+  @IsOptional()
   logo?: string;
 }
 @InputType()

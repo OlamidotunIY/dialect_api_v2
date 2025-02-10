@@ -23,6 +23,9 @@ import { EmailService } from './email/email.service';
 import { PermissionService } from './permission/permission.service';
 import { PrismaService } from './prisma.services';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { TeamService } from './team/team.service';
+import { TeamResolver } from './team/team.resolver';
+import { TeamModule } from './team/team.module';
 
 const pubSub = new RedisPubSub({
   connection: {
@@ -90,6 +93,7 @@ const pubSub = new RedisPubSub({
     StreamModule,
     ProjectModule,
     TaskModule,
+    TeamModule,
   ],
   controllers: [AppController],
   providers: [
@@ -103,6 +107,8 @@ const pubSub = new RedisPubSub({
     EmailService,
     PermissionService,
     PrismaService,
+    TeamService,
+    TeamResolver,
   ],
 })
 export class AppModule {}

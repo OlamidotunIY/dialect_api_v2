@@ -8,22 +8,25 @@ model Stream {
     workspace     Workspace       @relation(fields: [workspaceId], references: [id])
     streamMembers streamMembers[]
     projects      Project[]
+    Teams         Team[]
 
     // Indexes
     @@index([workspaceId])
 }
 
 model streamMembers {
-    id       String @id @default(auto()) @map("_id") @db.ObjectId
-    userId   String @db.ObjectId
-    streamId String @db.ObjectId
-    role     String
+    id       String  @id @default(auto()) @map("_id") @db.ObjectId
+    userId   String  @db.ObjectId
+    streamId String  @db.ObjectId
+    teamId   String? @db.ObjectId
 
     // Relations
     user   User   @relation(fields: [userId], references: [id])
     stream Stream @relation(fields: [streamId], references: [id])
+    Team   Team?  @relation(fields: [teamId], references: [id])
 
     // Indexes
     @@index([userId])
     @@index([streamId])
+    @@index([teamId])
 }

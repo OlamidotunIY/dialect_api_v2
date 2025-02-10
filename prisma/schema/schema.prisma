@@ -35,4 +35,5 @@ enum ResourceType {
     STREAM
     PROJECT
     TASK
+    TEAM
 }
