@@ -59,10 +59,10 @@ export class StreamResolver {
   @Mutation(() => Stream)
   async addMembersToStream(
     @Args('streamId') streamId: string,
-    @Args('userIds') members: string[],
+    @Args('userIds') userIds: string[],
   ) {
     // implementation
-    return this.streamService.addMemberToStream(streamId, members);
+    return this.streamService.addStreamMember(streamId, userIds);
   }
 
   @UseFilters(GraphQLErrorFilter)

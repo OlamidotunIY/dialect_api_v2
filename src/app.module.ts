@@ -26,6 +26,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { TeamService } from './team/team.service';
 import { TeamResolver } from './team/team.resolver';
 import { TeamModule } from './team/team.module';
+import { JwtService } from '@nestjs/jwt';
 
 const pubSub = new RedisPubSub({
   connection: {
@@ -109,6 +110,7 @@ const pubSub = new RedisPubSub({
     PrismaService,
     TeamService,
     TeamResolver,
+    JwtService
   ],
 })
 export class AppModule {}

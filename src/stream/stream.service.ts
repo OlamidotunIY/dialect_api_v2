@@ -48,7 +48,7 @@ export class StreamService {
     });
   }
 
-  async addMemberToStream(streamId: string, userId: string[]) {
+  async addStreamMember(streamId: string, userIds: string[]) {
     const stream = await this.prisma.stream.findUnique({
       where: { id: streamId },
     });
@@ -57,7 +57,7 @@ export class StreamService {
       throw new Error('Stream not found');
     }
 
-    for (const id of userId) {
+    for (const id of userIds) {
       await this.prisma.streamMembers.create({
         data: {
           stream: { connect: { id: streamId } },
