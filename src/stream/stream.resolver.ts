@@ -59,7 +59,7 @@ export class StreamResolver {
   @Mutation(() => Stream)
   async addMembersToStream(
     @Args('streamId') streamId: string,
-    @Args('userIds') userIds: string[],
+    @Args('userIds', { type: () => [String] }) userIds: string[],
   ) {
     // implementation
     return this.streamService.addStreamMember(streamId, userIds);

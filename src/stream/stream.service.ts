@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/prisma.services';
 import { createStreamDto } from './dto';
@@ -13,7 +13,7 @@ export class StreamService {
     });
 
     if (!workspace) {
-      throw new Error('Workspace not found');
+      throw new BadRequestException('Workspace not found');
     }
 
     return this.prisma.stream.create({
@@ -54,18 +54,21 @@ export class StreamService {
     });
 
     if (!stream) {
-      throw new Error('Stream not found');
+      throw new BadRequestException('Stream not found');
     }
 
-    for (const id of userIds) {
-      await this.prisma.streamMembers.create({
-        data: {
-          stream: { connect: { id: streamId } },
-          user: { connect: { id } },
-        },
-      });
-    }
+    // Prepare an array of data for bulk creation
+    const streamMembersData = userIds.map((userId) => ({
+      streamId: streamId,
+      userId: userId,
+    }));
 
+    // Use Prisma's `createMany` for bulk insertion
+    await this.prisma.streamMembers.createMany({
+      data: streamMembersData,
+    });
+
+    // Fetch and return the updated stream with members
     return await this.prisma.stream.findUnique({
       where: { id: streamId },
       include: {

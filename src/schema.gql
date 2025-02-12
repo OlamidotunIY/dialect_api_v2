@@ -39,15 +39,25 @@ type LoginResponse {
 }
 
 type Mutation {
+  addMemberToTeam(teamId: String!, userId: String!): Team!
   addMembers(data: addMemberDto!): Workspace!
+  addMembersToStream(streamId: String!, userIds: [String!]!): Stream!
+  createRole(data: createRolesDto!, workspaceId: String!): Role!
+  createStream(data: createStreamDto!): Stream!
+  createTeam(data: createTeamDto!): Team!
   createWorkspace(logo: Upload, name: String!): Workspace!
+  deleteStream(id: String!): Stream!
+  deleteTeam(teamId: String!): Team!
   deleteWorkspace(id: String!): Workspace!
   inviteMembers(data: inviteMembersDto!): Workspace!
   login(loginInput: LoginDto!): LoginResponse!
-  logout: String!
+  logout: Boolean!
   refreshToken: String!
   register(registerInput: RegisterDto!): RegisterResponse!
+  removeMemberFromStream(streamId: String!): Stream!
+  removeMemberFromTeam(teamId: String!, userId: String!): Team!
   updateProfile(file: Upload, fullname: String!): User!
+  updateRole(data: createRolesDto!, id: String!): Role!
   updateWorkspace(aiEnabled: Boolean, description: String, id: String!, inviteLinkActive: Boolean, logo: Upload, name: String, teamSize: Float): Workspace!
 }
 
@@ -76,15 +86,22 @@ type Project {
 }
 
 type Query {
+  getStream(streamId: String!): Stream!
+  getStreamMembers(streamId: String!): [Stream!]!
+  getStreams(workspaceId: String!): [Stream!]!
+  getTeam(teamId: String!): Team!
+  getTeams(streamId: String!): [Team!]!
   hello: String!
   me: User!
+  role(id: String!): Role!
+  roles(workspaceId: String!): [Role!]!
 }
 
 input RegisterDto {
   confirmPassword: String!
   email: String!
   fullname: String!
-  inviteToken: String!
+  inviteToken: String
   password: String!
 }
 
@@ -109,11 +126,13 @@ type Role {
 }
 
 type Stream {
+  Team: Team!
   description: String
   id: String!
   name: String!
   projects: [Project!]!
   streamMembers: [StreamMembers!]!
+  teamId: String!
   workspace: Workspace!
   workspaceId: String!
 }
@@ -152,6 +171,14 @@ type TaskAssignment {
   taskId: String!
   user: User!
   userId: String!
+}
+
+type Team {
+  id: String!
+  name: String!
+  stream: Stream!
+  streamId: String!
+  streamMembers: [StreamMembers!]!
 }
 
 """The `Upload` scalar type represents a file upload."""
@@ -220,6 +247,22 @@ enum WorkspaceMemberStatus {
 input addMemberDto {
   WorkspaceMemberId: String!
   workspaceId: String!
+}
+
+input createRolesDto {
+  name: String!
+}
+
+input createStreamDto {
+  description: String
+  name: String!
+  workspaceId: String!
+}
+
+input createTeamDto {
+  memberIds: [String!]
+  name: String!
+  streamId: String!
 }
 
 input inviteMembersDto {
