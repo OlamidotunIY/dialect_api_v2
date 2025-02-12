@@ -77,14 +77,16 @@ export class AuthService {
     });
 
     res.cookie('dialect-access-token', accessToken, {
-      // httpOnly: true,
-      domain: '.localhost',
+      httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
+      sameSite: 'none',
+      secure: true,
     });
     res.cookie('dialect-refresh-token', refreshToken, {
-      // httpOnly: true,
-      domain: '.localhost',
+      httpOnly: true,
       maxAge: 90 * 24 * 60 * 60 * 1000,
+      sameSite: 'none',
+      secure: true,
     });
 
     const updatedUser = await this.prisma.user.findUnique({
