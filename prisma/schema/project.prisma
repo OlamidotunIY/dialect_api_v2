@@ -3,7 +3,7 @@ model Project {
     name        String
     description String?
     streamId    String    @db.ObjectId
-    title       String
+    teamId      String?   @db.ObjectId // Optional team association
     status      String    @default("Not Started")
     dueDate     DateTime?
     priority    String    @default("Low")
@@ -13,6 +13,7 @@ model Project {
     // Relations
     stream Stream @relation(fields: [streamId], references: [id])
     tasks  Task[]
+    team   Team?  @relation(fields: [teamId], references: [id]) // Optional relation to Team
 
     // Indexes
     @@index([streamId])

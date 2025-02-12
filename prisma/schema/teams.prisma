@@ -4,6 +4,7 @@ model Team {
     streamId String @db.ObjectId
 
     // Relations
-    stream Stream @relation(fields: [streamId], references: [id])
-    members streamMembers[]
+    stream   Stream          @relation(fields: [streamId], references: [id])
+    members  streamMembers[]
+    Project  Project[]
 }

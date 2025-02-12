@@ -130,4 +130,61 @@ export class TeamService {
       where: { id: teamId },
     });
   }
+
+  async transferMemberFromTeamToTeam(
+    teamId: string,
+    userId: string,
+    newTeamId: string,
+  ) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    const team = await this.prisma.team.findUnique({
+      where: { id: teamId },
+    });
+
+    if (!team) {
+      throw new BadRequestException('Team not found');
+    }
+
+    const newTeam = await this.prisma.team.findUnique({
+      where: { id: newTeamId },
+    });
+
+    if (!newTeam) {
+      throw new BadRequestException('New Team not found');
+    }
+
+    const streamMember = await this.prisma.streamMembers.findFirst({
+      where: {
+        userId,
+        streamId: team.streamId,
+      },
+    });
+
+    await this.prisma.team.update({
+      where: { id: teamId },
+      data: {
+        members: {
+          disconnect: { id: streamMember.id },
+        },
+      },
+    });
+
+    return this.prisma.team.update({
+      where: { id: newTeamId },
+      data: {
+        members: {
+          connect: { id: streamMember.id },
+        },
+      },
+    });
+  }
 }
