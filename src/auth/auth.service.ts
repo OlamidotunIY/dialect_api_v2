@@ -91,7 +91,19 @@ export class AuthService {
 
     const updatedUser = await this.prisma.user.findUnique({
       where: { id: user.id },
-      include: { workspaces: true },
+      include: {
+        workspaces: {
+          include: {
+            workspace: {
+              include: {
+                owner: true,
+                members: true,
+              },
+            },
+            user: true,
+          },
+        },
+      },
     });
 
     return {

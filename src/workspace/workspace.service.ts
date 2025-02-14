@@ -59,6 +59,13 @@ export class WorkspaceService {
       },
     });
 
+    await this.prisma.user.update({
+      where: { id: sub },
+      data: {
+        defaultWorkspaceId: workspace.id,
+      },
+    });
+
     // create default roles
 
     const role = await this.rolesService.createRoles(workspace.id, {
@@ -85,7 +92,7 @@ export class WorkspaceService {
             id: workspace.defaultRoleId,
           },
         },
-        status: "ACTIVE"
+        status: 'ACTIVE',
       },
     });
 

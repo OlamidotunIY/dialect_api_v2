@@ -1,18 +1,20 @@
 import { Resolver, Query, Context, Mutation, Args } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { Request } from 'express';
-import { UseGuards } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import { User } from './user.type';
 import { GraphqlAuthGuard } from 'src/auth/graphql-auth.guard';
 import { createWriteStream } from 'fs';
 import { join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import * as GraphqlUpload from 'graphql-upload/GraphQLUpload.js';
+import { GraphQLErrorFilter } from 'src/filters/custom-exception.filter';
 
 @Resolver()
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
+  @UseFilters(GraphQLErrorFilter)
   @UseGuards(GraphqlAuthGuard)
   @Query(() => User)
   async me(@Context() context: { req: Request }) {
@@ -20,6 +22,7 @@ export class UserResolver {
     return this.userService.getUserData(userId);
   }
 
+  @UseFilters(GraphQLErrorFilter)
   @UseGuards(GraphqlAuthGuard)
   @Mutation(() => User)
   async updateProfile(
@@ -41,5 +44,16 @@ export class UserResolver {
     const readStream = createReadStream();
     readStream.pipe(createWriteStream(imagePath));
     return imageUrl;
+  }
+
+  @UseFilters(GraphQLErrorFilter)
+  @UseGuards(GraphqlAuthGuard)
+  @Mutation(() => User)
+  async setDefaultWorkspace(
+    @Args('workspaceId') workspaceId: string,
+    @Context() context: { req: Request },
+  ) {
+    const userId = context.req.user.sub;
+    return this.userService.setDefaultWorkspace(userId, workspaceId);
   }
 }

@@ -11,7 +11,12 @@ export class UserService {
       include: {
         workspaces: {
           include: {
-            workspace: true,
+            workspace: {
+              include: {
+                owner: true,
+                members: true,
+              },
+            },
             role: true,
           },
         },
@@ -31,6 +36,15 @@ export class UserService {
     return await this.prisma.user.update({
       where: { id: userId },
       data: { fullname },
+    });
+  }
+
+  async setDefaultWorkspace(userId: string, workspaceId: string) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        defaultWorkspaceId: workspaceId,
+      },
     });
   }
 }
