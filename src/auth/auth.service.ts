@@ -98,7 +98,6 @@ export class AuthService {
       user: {
         ...updatedUser,
       },
-      auth: { accessToken, refreshToken },
     };
   }
 

@@ -4,7 +4,6 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { PrismaService } from 'src/prisma.services';
@@ -18,7 +17,7 @@ export class PermissionsGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const gqlContext = GqlExecutionContext.create(context);
-    const { user } = gqlContext.getContext().req;
+    const userId = gqlContext.getContext().req.user.sub;
 
     // Get required permissions from metadata
     const requiredPermissions = this.reflector.get<
@@ -46,7 +45,7 @@ export class PermissionsGuard implements CanActivate {
     const workspaceMember = await this.prisma.workspaceMember.findFirst({
       where: {
         workspaceId,
-        userId: user.sub,
+        userId,
       },
       include: {
         role: {

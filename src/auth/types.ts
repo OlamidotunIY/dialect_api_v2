@@ -13,16 +13,10 @@ export class Auth {
 export class RegisterResponse {
   @Field(() => User, { nullable: true })
   user?: User;
-
-  @Field()
-  auth?: Auth;
 }
 
 @ObjectType()
 export class LoginResponse {
   @Field(() => User, { nullable: true })
   user?: User;
-
-  @Field()
-  auth?: Auth
 }
