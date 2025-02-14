@@ -46,6 +46,7 @@ export class PermissionsGuard implements CanActivate {
       where: {
         workspaceId,
         userId,
+        status: "ACTIVE"
       },
       include: {
         role: {

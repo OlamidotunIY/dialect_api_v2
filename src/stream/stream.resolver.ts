@@ -15,8 +15,7 @@ export class StreamResolver {
   constructor(private readonly streamService: StreamService) {}
 
   @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard)
-  @UseGuards(PermissionsGuard)
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'create', value: true, resourceType: ResourceType.STREAM },
   ])
@@ -27,8 +26,7 @@ export class StreamResolver {
   }
 
   @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard)
-  @UseGuards(PermissionsGuard)
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'read', value: true, resourceType: ResourceType.STREAM },
   ])
@@ -39,8 +37,7 @@ export class StreamResolver {
   }
 
   @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard)
-  @UseGuards(PermissionsGuard)
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'delete', value: true, resourceType: ResourceType.STREAM },
   ])
@@ -51,8 +48,7 @@ export class StreamResolver {
   }
 
   @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard)
-  @UseGuards(PermissionsGuard)
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'add-members', value: true, resourceType: ResourceType.STREAM },
   ])
@@ -66,8 +62,7 @@ export class StreamResolver {
   }
 
   @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard)
-  @UseGuards(PermissionsGuard)
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'remove-member', value: true, resourceType: ResourceType.STREAM },
   ])
@@ -84,8 +79,7 @@ export class StreamResolver {
   }
 
   @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard)
-  @UseGuards(PermissionsGuard)
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'read', value: true, resourceType: ResourceType.STREAM },
   ])
@@ -96,8 +90,7 @@ export class StreamResolver {
   }
 
   @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard)
-  @UseGuards(PermissionsGuard)
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'read', value: true, resourceType: ResourceType.STREAM },
   ])

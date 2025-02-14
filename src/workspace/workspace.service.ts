@@ -85,6 +85,7 @@ export class WorkspaceService {
             id: workspace.defaultRoleId,
           },
         },
+        status: "ACTIVE"
       },
     });
 
