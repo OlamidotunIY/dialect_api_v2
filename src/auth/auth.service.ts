@@ -100,6 +100,7 @@ export class AuthService {
                 members: true,
               },
             },
+            role: true,
             user: true,
           },
         },
