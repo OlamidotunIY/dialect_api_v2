@@ -33,13 +33,13 @@ export class PermissionsGuard implements CanActivate {
     }
 
     // Extract workspaceId from the request arguments (assuming it's passed as an argument)
-    const args = gqlContext.getArgs();
-    const workspaceId = args.workspaceId;
-    if (!workspaceId) {
-      throw new ForbiddenException(
-        'Workspace ID is required for this operation.',
-      );
-    }
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    const workspaceId = user.defaultWorkspaceId;
 
     // Check if user has all required permissions
     const workspaceMember = await this.prisma.workspaceMember.findFirst({
