@@ -97,7 +97,12 @@ export class AuthService {
             workspace: {
               include: {
                 owner: true,
-                members: true,
+                members: {
+                  include: {
+                    user: true,
+                    role: true,
+                  },
+                },
               },
             },
             role: true,

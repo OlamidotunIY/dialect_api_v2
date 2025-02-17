@@ -42,6 +42,16 @@ export class WorkspaceService {
   async getWorkspace(id: string) {
     return this.prisma.workspace.findUnique({
       where: { id },
+      include: {
+        roles: true,
+        members: {
+          include: {
+            user: true,
+          },
+        },
+        owner: true,
+        streams: true,
+      },
     });
   }
 
