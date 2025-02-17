@@ -14,8 +14,7 @@ export class RolesResolver {
   constructor(private readonly rolesService: RolesService) {}
 
   @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard)
-  @UseGuards(PermissionsGuard)
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'update', value: true, resourceType: ResourceType.WORKSPACE },
   ])
@@ -28,8 +27,7 @@ export class RolesResolver {
   }
 
   @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard)
-  @UseGuards(PermissionsGuard)
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'read', value: true, resourceType: ResourceType.WORKSPACE },
   ])
@@ -39,8 +37,7 @@ export class RolesResolver {
   }
 
   @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard)
-  @UseGuards(PermissionsGuard)
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'read', value: true, resourceType: ResourceType.WORKSPACE },
   ])
@@ -50,8 +47,7 @@ export class RolesResolver {
   }
 
   @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard)
-  @UseGuards(PermissionsGuard)
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'update', value: true, resourceType: ResourceType.WORKSPACE },
   ])
