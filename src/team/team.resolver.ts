@@ -14,8 +14,7 @@ export class TeamResolver {
   constructor(private readonly teamService: TeamService) {}
 
   @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard)
-  @UseGuards(PermissionsGuard)
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'create', value: true, resourceType: ResourceType.TEAM },
   ])
@@ -25,8 +24,7 @@ export class TeamResolver {
   }
 
   @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard)
-  @UseGuards(PermissionsGuard)
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([{ name: 'read', value: true, resourceType: ResourceType.TEAM }])
   @Query(() => [Team])
   async getTeams(@Args('streamId') streamId: string) {
@@ -34,8 +32,7 @@ export class TeamResolver {
   }
 
   @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard)
-  @UseGuards(PermissionsGuard)
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([{ name: 'read', value: true, resourceType: ResourceType.TEAM }])
   @Query(() => Team)
   async getTeam(@Args('teamId') teamId: string) {
@@ -43,8 +40,7 @@ export class TeamResolver {
   }
 
   @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard)
-  @UseGuards(PermissionsGuard)
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     {
       name: 'add-members',
@@ -61,8 +57,7 @@ export class TeamResolver {
   }
 
   @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard)
-  @UseGuards(PermissionsGuard)
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     {
       name: 'delete',
@@ -75,21 +70,20 @@ export class TeamResolver {
     return this.teamService.deleteTeam(teamId);
   }
 
-    @UseFilters(GraphQLErrorFilter)
-    @UseGuards(GraphqlAuthGuard)
-    @UseGuards(PermissionsGuard)
-    @Permissions([
-      {
-        name: 'remove-member',
-        value: true,
-        resourceType: ResourceType.TEAM,
-      },
-    ])
-    @Mutation(() => Team)
-    async removeMemberFromTeam(
-      @Args('teamId') teamId: string,
-      @Args('userId') userId: string,
-    ) {
-      return this.teamService.removeMemberFromTeam(teamId, userId);
-    }
+  @UseFilters(GraphQLErrorFilter)
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
+  @Permissions([
+    {
+      name: 'remove-member',
+      value: true,
+      resourceType: ResourceType.TEAM,
+    },
+  ])
+  @Mutation(() => Team)
+  async removeMemberFromTeam(
+    @Args('teamId') teamId: string,
+    @Args('userId') userId: string,
+  ) {
+    return this.teamService.removeMemberFromTeam(teamId, userId);
+  }
 }

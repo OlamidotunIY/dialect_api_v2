@@ -27,20 +27,12 @@ export class RolesResolver {
   }
 
   @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
-  @Permissions([
-    { name: 'read', value: true, resourceType: ResourceType.WORKSPACE },
-  ])
   @Query(() => [Role])
   async roles(@Args('workspaceId') workspaceId: string) {
     return this.rolesService.getRoles(workspaceId);
   }
 
   @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
-  @Permissions([
-    { name: 'read', value: true, resourceType: ResourceType.WORKSPACE },
-  ])
   @Query(() => Role)
   async role(@Args('id') id: string) {
     return this.rolesService.getRole(id);
