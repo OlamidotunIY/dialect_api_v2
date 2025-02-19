@@ -203,7 +203,7 @@ export class WorkspaceService {
         // send email to user
 
         const subject = `You have been invited to join ${workspace.name} workspace`;
-        const link = `${this.configService.get('FRONTEND_URL')}/invite/${token}`;
+        const link = `${this.configService.get('FRONTEND_URL')}/invite?workspaceId=${workspaceId}&workspaceMemberId=${user.id}`;
         const html = `
 <p>Hi <strong>${user.fullname}</strong>,</p>
 <p><br>You&apos;ve been invited to join the workspace <strong>${workspace.name}</strong>. Click the link below to accept the invite and start collaborating:</p>
