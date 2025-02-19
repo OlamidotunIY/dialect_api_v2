@@ -18,5 +18,5 @@ model Project {
     team   Team?  @relation(fields: [teamId], references: [id]) // Optional relation to Team
 
     // Indexes
-    @@index([streamId])
+    @@index([streamId, teamId])
 }

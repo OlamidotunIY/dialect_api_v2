@@ -24,8 +24,15 @@ export class ProjectService {
     });
   }
 
-  async getProjects(streamId: string) {
-    return this.prisma.project.findMany({ where: { streamId } });
+  async getProjects(streamName: string, workspaceId: string) {
+    return this.prisma.project.findMany({
+      where: {
+        stream: {
+          name: streamName,
+          workspaceId,
+        },
+      },
+    });
   }
 
   async getProjectById(id: string) {

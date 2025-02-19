@@ -1,6 +1,7 @@
-import { Field, ObjectType } from "@nestjs/graphql";
-import { Stream } from "src/stream/stream.types";
-import { Task } from "src/task/task.types";
+import { Field, ObjectType } from '@nestjs/graphql';
+import { Stream } from 'src/stream/stream.types';
+import { Task } from 'src/task/task.types';
+import { Team } from 'src/team/team.types';
 
 @ObjectType()
 export class Project {
@@ -14,13 +15,16 @@ export class Project {
   description?: string;
 
   @Field()
+  logo: string;
+
+  @Field()
   streamId: string;
 
   @Field()
-  title: string;
-
-  @Field()
   status: string; // Default value: "Not Started"
+
+  @Field({ nullable: true })
+  startDate: Date;
 
   @Field({ nullable: true })
   dueDate?: Date;
@@ -40,4 +44,7 @@ export class Project {
 
   @Field(() => [Task])
   tasks: Task[];
+
+  @Field(() => Team)
+  team: Team;
 }
