@@ -2,9 +2,11 @@ model Project {
     id          String    @id @default(auto()) @map("_id") @db.ObjectId
     name        String
     description String?
+    logo        String?
     streamId    String    @db.ObjectId
     teamId      String?   @db.ObjectId // Optional team association
     status      String    @default("Not Started")
+    startDate   DateTime?
     dueDate     DateTime?
     priority    String    @default("Low")
     createdAt   DateTime  @default(now())
