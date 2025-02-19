@@ -165,52 +165,53 @@ export class WorkspaceService {
     const token = await this.generateInviteToken();
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-    userEmails.forEach(async (email) => {
+    for (const email of userEmails) {
       const user = await this.prisma.user.findUnique({
         where: { email },
       });
 
       if (user) {
-        const existingWorkspaceMember = this.prisma.workspaceMember.findFirst({
-          where: {
-            workspaceId,
-            userId: user.id,
-          },
-        });
+        const existingWorkspaceMember =
+          await this.prisma.workspaceMember.findFirst({
+            where: {
+              workspaceId,
+              userId: user.id,
+              status: 'ACTIVE',
+            },
+          });
 
         if (existingWorkspaceMember) {
           throw new BadRequestException(
             `${email} is already a member of this workspace`,
           );
-        }
-
-        await this.prisma.workspaceMember.create({
-          data: {
-            workspace: {
-              connect: { id: workspaceId },
-            },
-            user: {
-              connect: { id: user.id },
-            },
-            role: {
-              connect: {
-                id: workspace.defaultRoleId,
+        } else {
+          await this.prisma.workspaceMember.create({
+            data: {
+              workspace: {
+                connect: { id: workspaceId },
+              },
+              user: {
+                connect: { id: user.id },
+              },
+              role: {
+                connect: {
+                  id: workspace.defaultRoleId,
+                },
               },
             },
-          },
-        });
+          });
 
-        // send email to user
+          // Send email to user
+          const subject = `You have been invited to join ${workspace.name} workspace`;
+          const link = `${this.configService.get('FRONTEND_URL')}/invite?workspaceId=${workspaceId}&workspaceMemberId=${user.id}`;
+          const html = `
+  <p>Hi <strong>${user.fullname}</strong>,</p>
+  <p><br>You&apos;ve been invited to join the workspace <strong>${workspace.name}</strong>. Click the link below to accept the invite and start collaborating:</p>
+  <p><br><a href="${link}" target="_blank" rel="noopener noreferrer">Accept Invite Link</a></p>
+  <p>Looking forward to having you on board!</p>`;
 
-        const subject = `You have been invited to join ${workspace.name} workspace`;
-        const link = `${this.configService.get('FRONTEND_URL')}/invite?workspaceId=${workspaceId}&workspaceMemberId=${user.id}`;
-        const html = `
-<p>Hi <strong>${user.fullname}</strong>,</p>
-<p><br>You&apos;ve been invited to join the workspace <strong>${workspace.name}</strong>. Click the link below to accept the invite and start collaborating:</p>
-<p><br><a href="${link}" target="_blank" rel="noopener noreferrer">Accept Invite Link</a></p>
-<p>Looking forward to having you on board!</p>`;
-
-        await this.emailService.sendMail(email, subject, html);
+          await this.emailService.sendMail(email, subject, html);
+        }
       } else {
         await this.prisma.workspaceInvite.create({
           data: {
@@ -227,14 +228,14 @@ export class WorkspaceService {
         const link = `${this.configService.get('FRONTEND_URL')}/register?inviteToken=${token}`;
         const subject = `You have been invited to join ${workspace.name} workspace`;
         const html = `
-<p>Hi,</p>
-<p><br>You&apos;ve been invited to join the workspace <strong>${workspace.name}</strong>. To accept the invite and get started, please sign up using the link below:</p>
-<p><br><a href="${link}" target="_blank" rel="noopener noreferrer">Sign Up & Accept Invite Link</a></p>
-<p>We’re excited to welcome you!</p>`;
+  <p>Hi,</p>
+  <p><br>You&apos;ve been invited to join the workspace <strong>${workspace.name}</strong>. To accept the invite and get started, please sign up using the link below:</p>
+  <p><br><a href="${link}" target="_blank" rel="noopener noreferrer">Sign Up & Accept Invite Link</a></p>
+  <p>We’re excited to welcome you!</p>`;
 
         await this.emailService.sendMail(email, subject, html);
       }
-    });
+    }
 
     return workspace;
   }
