@@ -17,6 +17,8 @@ model Project {
     tasks  Task[]
     team   Team?  @relation(fields: [teamId], references: [id]) // Optional relation to Team
 
+    // Constraints
+    @@unique([streamId, name]) // Ensure name is unique within a stream
     // Indexes
     @@index([streamId, teamId])
 }

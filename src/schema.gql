@@ -2,11 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Auth {
-  accessToken: String!
-  refreshToken: String!
-}
-
 type ChecklistItem {
   content: String!
   id: String!
@@ -34,7 +29,6 @@ input LoginDto {
 }
 
 type LoginResponse {
-  auth: Auth!
   user: User
 }
 
@@ -42,6 +36,7 @@ type Mutation {
   addMemberToTeam(teamId: String!, userId: String!): Team!
   addMembers(data: addMemberDto!): Workspace!
   addMembersToStream(streamId: String!, userIds: [String!]!): Stream!
+  createProject(data: createProjectDto!): Project!
   createRole(data: createRolesDto!, workspaceId: String!): Role!
   createStream(data: createStreamDto!): Stream!
   createTeam(data: createTeamDto!): Team!
@@ -56,6 +51,7 @@ type Mutation {
   register(registerInput: RegisterDto!): RegisterResponse!
   removeMemberFromStream(streamId: String!): Stream!
   removeMemberFromTeam(teamId: String!, userId: String!): Team!
+  setDefaultWorkspace(workspaceId: String!): User!
   updateProfile(file: Upload, fullname: String!): User!
   updateRole(data: createRolesDto!, id: String!): Role!
   updateWorkspace(aiEnabled: Boolean, description: String, id: String!, inviteLinkActive: Boolean, logo: Upload, name: String, teamSize: Float): Workspace!
@@ -75,13 +71,15 @@ type Project {
   description: String
   dueDate: DateTime
   id: String!
+  logo: String!
   name: String!
   priority: String!
+  startDate: DateTime
   status: String!
   stream: Stream!
   streamId: String!
   tasks: [Task!]!
-  title: String!
+  team: Team!
   updatedAt: DateTime!
 }
 
@@ -93,6 +91,7 @@ type Query {
   getTeams(streamId: String!): [Team!]!
   hello: String!
   me: User!
+  projects(streamName: String!, workspaceId: String!): [Project!]!
   role(id: String!): Role!
   roles(workspaceId: String!): [Role!]!
 }
@@ -106,7 +105,6 @@ input RegisterDto {
 }
 
 type RegisterResponse {
-  auth: Auth!
   user: User
 }
 
@@ -247,6 +245,12 @@ enum WorkspaceMemberStatus {
 input addMemberDto {
   WorkspaceMemberId: String!
   workspaceId: String!
+}
+
+input createProjectDto {
+  description: String!
+  name: String!
+  streamId: String!
 }
 
 input createRolesDto {
