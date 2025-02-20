@@ -10,6 +10,12 @@ export class Role {
   name: string;
 
   @Field()
+  description: string;
+
+  @Field()
+  logo: string;
+
+  @Field()
   workspaceId: string;
 
   // Relations
@@ -48,7 +54,10 @@ export class Permission {
 enum ResourceType {
   WORKSPACE = 'WORKSPACE',
   CHANNEL = 'CHANNEL',
-  OTHER = 'OTHER', // Add any additional resource types here
+  STREAM = 'STREAM',
+  PROJECT = 'PROJECT',
+  TASK = 'TASK',
+  TEAM = 'TEAM',
 }
 
 registerEnumType(ResourceType, {
