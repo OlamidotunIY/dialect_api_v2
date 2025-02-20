@@ -3,7 +3,7 @@ model Stream {
     name        String
     description String?
     workspaceId String  @db.ObjectId
-    updatedAt   DateTime @default(now())
+    updatedAt   DateTime? @default(now())
 
     // Relations
     workspace     Workspace       @relation(fields: [workspaceId], references: [id])

@@ -34,7 +34,7 @@ export class Stream {
   @Field(() => Team)
   Team: Team;
 
-  @Field()
+  @Field({nullable: true})
   updateAt: Date;
 }
 
