@@ -33,6 +33,9 @@ export class Stream {
 
   @Field(() => Team)
   Team: Team;
+
+  @Field()
+  updateAt: Date;
 }
 
 @ObjectType()
