@@ -38,6 +38,9 @@ export class Project {
   @Field()
   updatedAt: Date;
 
+  @Field({ nullable: true })
+  progress: number; // Default value: 0
+
   // Relations
   @Field(() => Stream)
   stream: Stream;
