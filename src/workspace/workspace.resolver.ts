@@ -106,4 +106,11 @@ export class WorkspaceResolver {
   async inviteMembers(@Args('data') data: inviteMembersDto) {
     return this.workspaceService.inviteMembers(data);
   }
+
+  @UseFilters(GraphQLErrorFilter)
+  @UseGuards(GraphqlAuthGuard)
+  @Mutation(() => Workspace)
+  async removeMembers(@Args('workspaceId') workspaceId: string, @Args('userId') userId: string) {
+    return this.workspaceService.removeMembers(workspaceId, userId);
+  }
 }

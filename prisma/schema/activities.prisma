@@ -1,0 +1,37 @@
+model Activity {
+    id          String   @id @default(auto()) @map("_id") @db.ObjectId
+    type        ActivityType // e.g., "PROJECT_UPDATED", "TASK_COMPLETED"
+    description String? // Optional description
+    streamId    String?  @db.ObjectId
+    projectId   String?  @db.ObjectId
+    taskId      String?  @db.ObjectId
+    userId      String   @db.ObjectId
+    createdAt   DateTime @default(now())
+
+    // Relations
+    stream  Stream?  @relation(fields: [streamId], references: [id])
+    project Project? @relation(fields: [projectId], references: [id])
+}
+
+enum ActivityType {
+    PROJECT_CREATED
+    PROJECT_UPDATED
+    PROJECT_DELETED
+    TASK_CREATED
+    TASK_UPDATED
+    TASK_COMPLETED
+    TASK_DELETED
+    COMMENT_CREATED
+    COMMENT_UPDATED
+    COMMENT_DELETED
+    USER_JOINED
+    USER_LEFT
+    USER_INVITED
+    USER_REMOVED
+    TEAM_CREATED
+    TEAM_UPDATED
+    TEAM_DELETED
+    STREAM_CREATED
+    STREAM_UPDATED
+    STREAM_DELETED
+}
