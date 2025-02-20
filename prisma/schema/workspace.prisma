@@ -25,6 +25,9 @@ model Workspace {
     roles           Role[]
     WorkspaceInvite WorkspaceInvite[]
 
+    // Constraints
+    @@unique([ownerId, name]) // Ensure name is unique within a user's workspaces
+
     // Indexes
     @@index([ownerId])
 }
@@ -40,6 +43,9 @@ model WorkspaceMember {
     user      User      @relation(fields: [userId], references: [id])
     workspace Workspace @relation(fields: [workspaceId], references: [id])
     role      Role      @relation(fields: [roleId], references: [id])
+
+    // Constraints
+    @@unique([userId, workspaceId]) // Ensure a user can only be a member of a workspace once
 
     // Indexes
     @@index([userId])

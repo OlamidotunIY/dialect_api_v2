@@ -239,4 +239,15 @@ export class WorkspaceService {
 
     return workspace;
   }
+
+  async removeMembers(workspaceId: string, userId: string) {
+    return this.prisma.workspaceMember.delete({
+      where: {
+        userId_workspaceId: {
+          userId,
+          workspaceId,
+        },
+      },
+    });
+  }
 }

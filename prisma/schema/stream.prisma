@@ -3,12 +3,14 @@ model Stream {
     name        String
     description String?
     workspaceId String  @db.ObjectId
+    updatedAt   DateTime @default(now())
 
     // Relations
     workspace     Workspace       @relation(fields: [workspaceId], references: [id])
     streamMembers streamMembers[]
     projects      Project[]
     Teams         Team[]
+    Activity      Activity[]
 
     // Constraints
     @@unique([workspaceId, name]) // Ensure name is unique within a workspace
