@@ -99,9 +99,9 @@ export class WorkspaceMember {
 }
 
 export enum WorkspaceMemberStatus {
-  PENDING = 'pending',
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
+  PENDING = 'PENDING',
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
 }
 
 registerEnumType(WorkspaceMemberStatus, {

@@ -36,10 +36,9 @@ export class StreamService {
           },
         },
         Teams: {
-          select: {
-            name: true,
+          include: {
             members: true,
-            id: true,
+            Project: true,
           },
         },
       },
