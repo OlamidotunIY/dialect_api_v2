@@ -18,6 +18,7 @@ export class RolesService {
       include: {
         workspaceMembers: true,
         Permissions: true,
+        workspace: true,
       },
     });
   }

@@ -10,6 +10,8 @@ model Stream {
     projects      Project[]
     Teams         Team[]
 
+    // Constraints
+    @@unique([workspaceId, name]) // Ensure name is unique within a workspace
     // Indexes
     @@index([workspaceId])
 }
