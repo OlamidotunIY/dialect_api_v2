@@ -1,6 +1,8 @@
 model Role {
     id          String @id @default(auto()) @map("_id") @db.ObjectId
     name        String
+    description String?
+    logo        String?
     workspaceId String @db.ObjectId
 
     // Relations

@@ -68,6 +68,9 @@ export class Workspace {
 
   @Field(() => [Role])
   roles: Role[];
+
+  @Field()
+  defaultRoleId: string;
 }
 
 @ObjectType()
