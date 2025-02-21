@@ -17,7 +17,11 @@ export class UserService {
                 members: {
                   include: {
                     user: true,
-                    role: true,
+                    role: {
+                      include: {
+                        Permissions: true,
+                      },
+                    },
                   },
                 },
               },

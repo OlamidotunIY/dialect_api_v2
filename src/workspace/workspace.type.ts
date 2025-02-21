@@ -68,6 +68,9 @@ export class Workspace {
 
   @Field(() => [Role])
   roles: Role[];
+
+  @Field()
+  defaultRoleId: string;
 }
 
 @ObjectType()
@@ -99,9 +102,9 @@ export class WorkspaceMember {
 }
 
 export enum WorkspaceMemberStatus {
-  PENDING = 'pending',
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
+  PENDING = 'PENDING',
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
 }
 
 registerEnumType(WorkspaceMemberStatus, {

@@ -27,19 +27,14 @@ export class StreamService {
 
   async getStreams(workspaceId: string) {
     return this.prisma.stream.findMany({
-      where: { workspaceId },
+      where: {
+        workspaceId
+       },
       include: {
         projects: true,
         streamMembers: {
           include: {
             user: true,
-          },
-        },
-        Teams: {
-          select: {
-            name: true,
-            members: true,
-            id: true,
           },
         },
       },

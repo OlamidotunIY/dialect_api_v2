@@ -2,19 +2,24 @@ model Project {
     id          String    @id @default(auto()) @map("_id") @db.ObjectId
     name        String
     description String?
+    logo        String?
     streamId    String    @db.ObjectId
     teamId      String?   @db.ObjectId // Optional team association
     status      String    @default("Not Started")
+    startDate   DateTime?
     dueDate     DateTime?
     priority    String    @default("Low")
     createdAt   DateTime  @default(now())
     updatedAt   DateTime  @updatedAt
 
     // Relations
-    stream Stream @relation(fields: [streamId], references: [id])
-    tasks  Task[]
-    team   Team?  @relation(fields: [teamId], references: [id]) // Optional relation to Team
+    stream   Stream     @relation(fields: [streamId], references: [id])
+    tasks    Task[]
+    team     Team?      @relation(fields: [teamId], references: [id]) // Optional relation to Team
+    Activity Activity[]
 
+    // Constraints
+    @@unique([streamId, name]) // Ensure name is unique within a stream
     // Indexes
-    @@index([streamId])
+    @@index([streamId, teamId])
 }
