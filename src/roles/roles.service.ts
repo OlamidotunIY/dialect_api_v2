@@ -26,7 +26,11 @@ export class RolesService {
     return this.prisma.role.findUnique({
       where: { id },
       include: {
-        workspaceMembers: true,
+        workspaceMembers: {
+          include: {
+            user: true,
+          },
+        },
         Permissions: true,
       },
     });
