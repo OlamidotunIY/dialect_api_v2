@@ -18,6 +18,7 @@ model Task {
     subtasks       Task[]           @relation("Subtasks")
     parent         Task?            @relation("Subtasks", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
     parentId       String?          @db.ObjectId
+    Activities       Activity[]
 
     // Indexes
     @@index([projectId])

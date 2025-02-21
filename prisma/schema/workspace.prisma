@@ -24,10 +24,10 @@ model Workspace {
     streams         Stream[]
     roles           Role[]
     WorkspaceInvite WorkspaceInvite[]
+    Activities        Activity[]
 
     // Constraints
     @@unique([ownerId, name]) // Ensure name is unique within a user's workspaces
-
     // Indexes
     @@index([ownerId])
 }
@@ -46,7 +46,6 @@ model WorkspaceMember {
 
     // Constraints
     @@unique([userId, workspaceId]) // Ensure a user can only be a member of a workspace once
-
     // Indexes
     @@index([userId])
     @@index([workspaceId])

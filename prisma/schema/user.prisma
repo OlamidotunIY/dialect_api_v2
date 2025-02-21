@@ -15,8 +15,9 @@ model User {
     updatedAt             DateTime @updatedAt
 
     // Relations
-    ownedWorkspaces  Workspace[]       @relation("OwnedWorkspaces")
-    workspaces       WorkspaceMember[]
-    streams          streamMembers[]
-    assignedTasks    TaskAssignment[]
+    ownedWorkspaces Workspace[]       @relation("OwnedWorkspaces")
+    workspaces      WorkspaceMember[]
+    streams         streamMembers[]
+    assignedTasks   TaskAssignment[]
+    Activities        Activity[]
 }

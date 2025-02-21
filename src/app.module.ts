@@ -27,6 +27,8 @@ import { TeamService } from './team/team.service';
 import { TeamResolver } from './team/team.resolver';
 import { TeamModule } from './team/team.module';
 import { JwtService } from '@nestjs/jwt';
+import { ActivitiesService } from './activities/activities.service';
+import { ActivitiesModule } from './activities/activities.module';
 
 const pubSub = new RedisPubSub({
   connection: {
@@ -95,6 +97,7 @@ const pubSub = new RedisPubSub({
     ProjectModule,
     TaskModule,
     TeamModule,
+    ActivitiesModule,
   ],
   controllers: [AppController],
   providers: [
@@ -110,7 +113,8 @@ const pubSub = new RedisPubSub({
     PrismaService,
     TeamService,
     TeamResolver,
-    JwtService
+    JwtService,
+    ActivitiesService
   ],
 })
 export class AppModule {}

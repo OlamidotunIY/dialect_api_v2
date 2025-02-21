@@ -1,0 +1,71 @@
+import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Project } from 'src/project/project.types';
+import { Stream } from 'src/stream/stream.types';
+import { Task } from 'src/task/task.types';
+import { User } from 'src/user/user.type';
+import { Workspace } from 'src/workspace/workspace.type';
+
+@ObjectType()
+export class Activity {
+  @Field()
+  id: string;
+
+  @Field()
+  description?: string;
+
+  @Field(() => ActivityType)
+  type: ActivityType;
+
+  @Field(() => Stream!)
+  stream?: Stream;
+
+  @Field()
+  createdAt: Date;
+
+  @Field()
+  updatedAt: Date;
+
+  @Field(() => Task!)
+  task?: Task;
+
+  @Field(() => Project!)
+  project?: Project;
+
+  @Field(() => Workspace!)
+  workspace?: Workspace;
+
+  @Field(() => User)
+  user?: User;
+}
+
+export enum ActivityType {
+  PROJECT_CREATED = 'PROJECT_CREATED',
+  PROJECT_UPDATED = 'PROJECT_UPDATED',
+  PROJECT_DELETED = 'PROJECT_DELETED',
+  TASK_CREATED = 'TASK_CREATED',
+  TASK_UPDATED = 'TASK_UPDATED',
+  TASK_COMPLETED = 'TASK_COMPLETED',
+  TASK_DELETED = 'TASK_DELETED',
+  COMMENT_CREATED = 'COMMENT_CREATED',
+  COMMENT_UPDATED = 'COMMENT_UPDATED',
+  COMMENT_DELETED = 'COMMENT_DELETED',
+  USER_JOINED = 'USER_JOINED',
+  USER_LEFT = 'USER_LEFT',
+  USER_INVITED = 'USER_INVITED',
+  USER_REMOVED = 'USER_REMOVED',
+  TEAM_CREATED = 'TEAM_CREATED',
+  TEAM_UPDATED = 'TEAM_UPDATED',
+  TEAM_DELETED = 'TEAM_DELETED',
+  STREAM_CREATED = 'STREAM_CREATED',
+  STREAM_UPDATED = 'STREAM_UPDATED',
+  STREAM_DELETED = 'STREAM_DELETED',
+  WORKSPACE_CREATED = 'WORKSPACE_CREATED',
+  WORKSPACE_UPDATED = 'WORKSPACE_UPDATED',
+  WORKSPACE_DELETED = 'WORKSPACE_DELETED',
+  WORKSPACE_INVITED = 'WORKSPACE_INVITED',
+  WORKSPACE_REMOVED = 'WORKSPACE_REMOVED',
+}
+
+registerEnumType(ActivityType, {
+  name: 'ActivityType',
+});

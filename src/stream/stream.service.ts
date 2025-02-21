@@ -7,7 +7,7 @@ import { createStreamDto } from './dto';
 export class StreamService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createStream(data: createStreamDto) {
+  async createStream(data: createStreamDto, userId: string) {
     const workspace = await this.prisma.workspace.findUnique({
       where: { id: data.workspaceId },
     });
@@ -16,22 +16,59 @@ export class StreamService {
       throw new BadRequestException('Workspace not found');
     }
 
-    return this.prisma.stream.create({
+    const stream = await this.prisma.stream.create({
       data: {
         name: data.name,
         description: data.description,
         workspace: { connect: { id: data.workspaceId } },
       },
     });
+
+    await this.prisma.streamMembers.create({
+      data: {
+        streamId: stream.id,
+        userId,
+      },
+    });
+
+    return stream;
   }
 
-  async getStreams(workspaceId: string) {
+  async getStreams(workspaceId: string, userId: string) {
+    const recentProjects = await this.prisma.activity.findMany({
+      where: {
+        userId,
+        projectId: { not: null }, // Ensure the activity is linked to a project
+      },
+      distinct: ['projectId'], // Ensure unique project IDs
+      orderBy: {
+        createdAt: 'desc', // Order by the most recent activity
+      },
+      take: 3, // Limit to 3 projects
+      select: {
+        projectId: true,
+      },
+    });
+
+    const projectIds = recentProjects.map((activity) => activity.projectId);
+
     return this.prisma.stream.findMany({
       where: {
-        workspaceId
-       },
+        workspaceId,
+        streamMembers: {
+          some: {
+            user: {
+              id: userId,
+            },
+          },
+        },
+      },
       include: {
-        projects: true,
+        projects: {
+          where: {
+            id: { in: projectIds.length > 0 ? projectIds : undefined }, // Include all projects if no recent projects exist
+          },
+        },
         streamMembers: {
           include: {
             user: true,

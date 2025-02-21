@@ -2,6 +2,47 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Activity {
+  createdAt: DateTime!
+  description: String!
+  id: String!
+  project: Project!
+  stream: Stream!
+  task: Task!
+  type: ActivityType!
+  updatedAt: DateTime!
+  user: User!
+  workspace: Workspace!
+}
+
+enum ActivityType {
+  COMMENT_CREATED
+  COMMENT_DELETED
+  COMMENT_UPDATED
+  PROJECT_CREATED
+  PROJECT_DELETED
+  PROJECT_UPDATED
+  STREAM_CREATED
+  STREAM_DELETED
+  STREAM_UPDATED
+  TASK_COMPLETED
+  TASK_CREATED
+  TASK_DELETED
+  TASK_UPDATED
+  TEAM_CREATED
+  TEAM_DELETED
+  TEAM_UPDATED
+  USER_INVITED
+  USER_JOINED
+  USER_LEFT
+  USER_REMOVED
+  WORKSPACE_CREATED
+  WORKSPACE_DELETED
+  WORKSPACE_INVITED
+  WORKSPACE_REMOVED
+  WORKSPACE_UPDATED
+}
+
 type ChecklistItem {
   content: String!
   id: String!
@@ -51,6 +92,7 @@ type Mutation {
   register(registerInput: RegisterDto!): RegisterResponse!
   removeMemberFromStream(streamId: String!): Stream!
   removeMemberFromTeam(teamId: String!, userId: String!): Team!
+  removeMembers(userId: String!, workspaceId: String!): Workspace!
   setDefaultWorkspace(workspaceId: String!): User!
   updateProfile(file: Upload, fullname: String!): User!
   updateRole(data: createRolesDto!, id: String!): Role!
@@ -74,6 +116,7 @@ type Project {
   logo: String!
   name: String!
   priority: String!
+  progress: Float
   startDate: DateTime
   status: String!
   stream: Stream!
@@ -84,11 +127,16 @@ type Project {
 }
 
 type Query {
+  activities(userId: String!): [Activity!]!
+  getProjectActivities(projectId: String!): Activity!
   getStream(streamId: String!): Stream!
+  getStreamActivities(streamId: String!): Activity!
   getStreamMembers(streamId: String!): [Stream!]!
   getStreams(workspaceId: String!): [Stream!]!
+  getTaskActivities(taskId: String!): Activity!
   getTeam(teamId: String!): Team!
   getTeams(streamId: String!): [Team!]!
+  getWorkspaceActivities(workspaceId: String!): Activity!
   hello: String!
   me: User!
   projects(streamName: String!, workspaceId: String!): [Project!]!
@@ -110,13 +158,18 @@ type RegisterResponse {
 
 enum ResourceType {
   CHANNEL
-  OTHER
+  PROJECT
+  STREAM
+  TASK
+  TEAM
   WORKSPACE
 }
 
 type Role {
   Permissions: [Permission!]!
+  description: String!
   id: String!
+  logo: String!
   name: String!
   workspace: Workspace!
   workspaceId: String!
@@ -131,6 +184,7 @@ type Stream {
   projects: [Project!]!
   streamMembers: [StreamMembers!]!
   teamId: String!
+  updateAt: DateTime
   workspace: Workspace!
   workspaceId: String!
 }
@@ -204,6 +258,7 @@ type User {
 type Workspace {
   aiEnabled: Boolean!
   createdAt: DateTime!
+  defaultRoleId: String!
   defaultStreamId: Float
   description: String
   id: String!
@@ -250,7 +305,8 @@ input addMemberDto {
 input createProjectDto {
   description: String!
   name: String!
-  streamId: String!
+  streamName: String!
+  workspaceId: String!
 }
 
 input createRolesDto {

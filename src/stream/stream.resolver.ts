@@ -20,9 +20,12 @@ export class StreamResolver {
     { name: 'create', value: true, resourceType: ResourceType.STREAM },
   ])
   @Mutation(() => Stream)
-  async createStream(@Args('data') data: createStreamDto) {
+  async createStream(
+    @Args('data') data: createStreamDto,
+    @Context() context: { req: Request },
+  ) {
     // implementation
-    return this.streamService.createStream(data);
+    return this.streamService.createStream(data, context.req.user.sub);
   }
 
   @UseFilters(GraphQLErrorFilter)
@@ -31,9 +34,12 @@ export class StreamResolver {
     { name: 'read', value: true, resourceType: ResourceType.STREAM },
   ])
   @Query(() => [Stream])
-  async getStreams(@Args('workspaceId') workspaceId: string) {
+  async getStreams(
+    @Args('workspaceId') workspaceId: string,
+    @Context() context: { req: Request },
+  ) {
     // implementation
-    return this.streamService.getStreams(workspaceId);
+    return this.streamService.getStreams(workspaceId, context.req.user.sub);
   }
 
   @UseFilters(GraphQLErrorFilter)
