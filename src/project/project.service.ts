@@ -37,6 +37,19 @@ export class ProjectService {
           workspaceId,
         },
       },
+      include: {
+        team: {
+          select: {
+            id: true,
+            name: true,
+            members: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        },
+      },
     });
   }
 
