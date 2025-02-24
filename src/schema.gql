@@ -25,9 +25,27 @@ enum ActivityType {
   STREAM_CREATED
   STREAM_DELETED
   STREAM_UPDATED
+  TASK_ADD_CHECKLIST_ITEM
+  TASK_ADD_DEPENDENCY
+  TASK_ADD_LABEL
+  TASK_ASSIGN_USER
+  TASK_CHECK_CHECKLIST_ITEM
   TASK_COMPLETED
   TASK_CREATED
+  TASK_CREATE_SUBTASK
   TASK_DELETED
+  TASK_DELETE_SUBTASK
+  TASK_REASSIGN_USER
+  TASK_REMOVE_CHECKLIST_ITEM
+  TASK_REMOVE_DEPENDENCY
+  TASK_REMOVE_LABEL
+  TASK_SET_DESCRIPTION
+  TASK_SET_DUE_DATE
+  TASK_SET_PRIORITY
+  TASK_SET_REPORTER
+  TASK_SET_STATUS
+  TASK_UNASSIGN_USER
+  TASK_UNCHECK_CHECKLIST_ITEM
   TASK_UPDATED
   TEAM_CREATED
   TEAM_DELETED
@@ -49,6 +67,11 @@ type ChecklistItem {
   isDone: Boolean!
   task: Task!
   taskId: String!
+}
+
+input CreateTaskDto {
+  description: String!
+  projectId: String!
 }
 
 """
@@ -74,28 +97,41 @@ type LoginResponse {
 }
 
 type Mutation {
+  addChecklistItem(description: String!, taskId: String!): ChecklistItem!
+  addDependency(dependsOn: String!, taskId: String!): Dependency!
   addMemberToTeam(teamId: String!, userId: String!): Team!
   addMembers(data: addMemberDto!): Workspace!
   addMembersToStream(streamId: String!, userIds: [String!]!): Stream!
+  assignTask(assigneeId: String!, taskId: String!): Task!
   createProject(data: createProjectDto!): Project!
   createRole(data: createRolesDto!, workspaceId: String!): Role!
   createStream(data: createStreamDto!): Stream!
+  createSubTask(description: String!, taskId: String!): Task!
+  createTask(data: CreateTaskDto!): Task!
   createTeam(data: createTeamDto!): Team!
   createWorkspace(logo: Upload, name: String!): Workspace!
   deleteStream(id: String!): Stream!
+  deleteTask(id: String!): Task!
   deleteTeam(teamId: String!): Team!
   deleteWorkspace(id: String!): Workspace!
   inviteMembers(data: inviteMembersDto!): Workspace!
   login(loginInput: LoginDto!): LoginResponse!
   logout: Boolean!
+  markCheckListItemAsComplete(id: String!): ChecklistItem!
+  markCheckListItemAsIncomplete(id: String!): ChecklistItem!
+  reassignTask(assigneeId: String!, taskId: String!): Task!
   refreshToken: String!
   register(registerInput: RegisterDto!): RegisterResponse!
+  removeChecklistItem(id: String!): ChecklistItem!
+  removeDependency(id: String!): Dependency!
   removeMemberFromStream(streamId: String!): Stream!
   removeMemberFromTeam(teamId: String!, userId: String!): Team!
   removeMembers(userId: String!, workspaceId: String!): Workspace!
   setDefaultWorkspace(workspaceId: String!): User!
+  unAssignTask(taskId: String!): Task!
   updateProfile(file: Upload, fullname: String!): User!
   updateRole(data: createRolesDto!, id: String!): Role!
+  updateTask(data: CreateTaskDto!, id: String!): Task!
   updateWorkspace(aiEnabled: Boolean, description: String, id: String!, inviteLinkActive: Boolean, logo: Upload, name: String, teamSize: Float): Workspace!
 }
 
@@ -134,6 +170,7 @@ type Query {
   getStreamMembers(streamId: String!): [Stream!]!
   getStreams(workspaceId: String!): [Stream!]!
   getTaskActivities(taskId: String!): Activity!
+  getTasks(projectId: String!): [Task!]!
   getTeam(teamId: String!): Team!
   getTeams(streamId: String!): [Team!]!
   getWorkspaceActivities(workspaceId: String!): Activity!
@@ -142,6 +179,7 @@ type Query {
   projects(streamName: String!, workspaceId: String!): [Project!]!
   role(id: String!): Role!
   roles(workspaceId: String!): [Role!]!
+  task(id: String!): Task!
 }
 
 input RegisterDto {
@@ -206,7 +244,7 @@ type Task {
   dependents: [Dependency!]!
   description: String
   dueDate: DateTime
-  id: String!
+  id: ID
   name: String!
   parent: Task
   priority: String!

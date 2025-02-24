@@ -1,10 +1,10 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Project } from 'src/project/project.types';
 import { User } from 'src/user/user.type';
 
 @ObjectType()
 export class Task {
-  @Field()
+  @Field(() => ID, { nullable: true })
   id: string;
 
   @Field()

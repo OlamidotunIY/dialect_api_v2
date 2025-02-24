@@ -19,5 +19,6 @@ model User {
     workspaces      WorkspaceMember[]
     streams         streamMembers[]
     assignedTasks   TaskAssignment[]
-    Activities        Activity[]
+    Activities      Activity[]
+    Tasks            Task[]
 }
