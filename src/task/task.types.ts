@@ -32,7 +32,7 @@ export class Task {
   updatedAt: Date;
 
   // Relations
-  @Field(() => Project)
+  @Field(() => Project, { nullable: true })
   project: Project;
 
   @Field(() => [TaskAssignment])

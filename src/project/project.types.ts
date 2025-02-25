@@ -48,6 +48,6 @@ export class Project {
   @Field(() => [Task])
   tasks: Task[];
 
-  @Field(() => Team)
+  @Field(() => Team, { nullable: true })
   team: Team;
 }
