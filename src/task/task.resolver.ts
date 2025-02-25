@@ -18,6 +18,7 @@ import { CreateTaskDto } from './dto';
 import { Request } from 'express';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { ProjectService } from 'src/project/project.service';
+import { pubSub } from 'src/app.module';
 
 @Resolver()
 export class TaskResolver {
@@ -25,7 +26,7 @@ export class TaskResolver {
   constructor(
     private readonly taskService: TaskService,
   ) {
-    this.pubSub = new RedisPubSub();
+    this.pubSub = pubSub;
   }
 
   // Queries

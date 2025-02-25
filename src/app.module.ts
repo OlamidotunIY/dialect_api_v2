@@ -30,7 +30,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ActivitiesService } from './activities/activities.service';
 import { ActivitiesModule } from './activities/activities.module';
 
-const pubSub = new RedisPubSub({
+export const pubSub = new RedisPubSub({
   connection: {
     host: process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT || '6379'),
