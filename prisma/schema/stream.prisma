@@ -1,8 +1,8 @@
 model Stream {
-    id          String  @id @default(auto()) @map("_id") @db.ObjectId
+    id          String    @id @default(auto()) @map("_id") @db.ObjectId
     name        String
     description String?
-    workspaceId String  @db.ObjectId
+    workspaceId String    @db.ObjectId
     updatedAt   DateTime? @default(now())
 
     // Relations
@@ -11,6 +11,7 @@ model Stream {
     projects      Project[]
     Teams         Team[]
     Activity      Activity[]
+    channel       channel[]
 
     // Constraints
     @@unique([workspaceId, name]) // Ensure name is unique within a workspace
@@ -19,18 +20,19 @@ model Stream {
 }
 
 model streamMembers {
-    id       String  @id @default(auto()) @map("_id") @db.ObjectId
-    userId   String  @db.ObjectId
-    streamId String  @db.ObjectId
-    teamId   String? @db.ObjectId
+    id                String  @id @default(auto()) @map("_id") @db.ObjectId
+    workspaceMemberId String  @db.ObjectId
+    streamId          String  @db.ObjectId
+    teamId            String? @db.ObjectId
 
     // Relations
-    user   User   @relation(fields: [userId], references: [id])
-    stream Stream @relation(fields: [streamId], references: [id])
-    Team   Team?  @relation(fields: [teamId], references: [id])
+    User           WorkspaceMember  @relation(fields: [workspaceMemberId], references: [id])
+    stream         Stream           @relation(fields: [streamId], references: [id])
+    Team           Team?            @relation(fields: [teamId], references: [id])
+    channelMembers channelMembers[]
 
     // Indexes
-    @@index([userId])
+    @@index([workspaceMemberId])
     @@index([streamId])
     @@index([teamId])
 }

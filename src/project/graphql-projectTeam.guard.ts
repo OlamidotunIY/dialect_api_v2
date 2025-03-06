@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable, ForbiddenException } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  ForbiddenException,
+} from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { PrismaService } from 'src/prisma.services';
 
@@ -14,7 +19,17 @@ export class ProjectTeamGuard implements CanActivate {
     // Fetch project with team and members
     const project = await this.prisma.project.findUnique({
       where: { id: projectId },
-      include: { team: { include: { members: true } } },
+      include: {
+        team: {
+          include: {
+            members: {
+              include: {
+                User: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!project) {
@@ -23,7 +38,9 @@ export class ProjectTeamGuard implements CanActivate {
 
     // Check team association
     if (project.teamId) {
-      const isMember = project.team.members.some(member => member.userId === userId);
+      const isMember = project.team.members.some(
+        (member) => member.User.userId === userId,
+      );
       if (!isMember) {
         throw new ForbiddenException('User is not part of the assigned team');
       }

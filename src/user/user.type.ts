@@ -1,4 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import { Activity } from 'src/activities/activities.types';
+import { Task } from 'src/task/task.types';
 import { Workspace, WorkspaceMember } from 'src/workspace/workspace.type';
 
 @ObjectType()
@@ -50,4 +52,10 @@ export class User {
 
   @Field(() => [WorkspaceMember], { nullable: true })
   workspaces?: WorkspaceMember[];
+
+  @Field(() => [Task], { nullable: true })
+  assignedTasks?: Task[];
+
+  @Field(() => [Activity], { nullable: true })
+  activities?: Activity[];
 }

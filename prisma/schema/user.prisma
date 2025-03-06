@@ -17,8 +17,7 @@ model User {
     // Relations
     ownedWorkspaces Workspace[]       @relation("OwnedWorkspaces")
     workspaces      WorkspaceMember[]
-    streams         streamMembers[]
-    assignedTasks   TaskAssignment[]
-    Activities      Activity[]
-    Tasks            Task[]
+    activities      Activity[]
+    ownedTask       Task[]            @relation("created_task")
+    assignedTasks    Task[]            @relation("assigned_tasks")
 }

@@ -13,14 +13,17 @@ export class createActivityDto {
   type: ActivityType;
 
   @Field({ nullable: true })
-  streamId: string;
+  streamId?: string;
 
   @Field({ nullable: true })
-  projectId: string;
+  projectId?: string;
 
   @Field({ nullable: true })
-  workspaceId: string;
+  workspaceId?: string;
 
   @Field({ nullable: true })
-  taskId: string;
+  taskId?: string;
+
+  @Field({ nullable: true })
+  channelId?: string;
 }

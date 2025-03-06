@@ -55,6 +55,13 @@ export class ActivitiesService {
             },
           },
         }),
+        ...(data.channelId && {
+          channel: {
+            connect: {
+              id: data.channelId,
+            },
+          },
+        })
       },
     });
   }

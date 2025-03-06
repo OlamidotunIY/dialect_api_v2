@@ -2,7 +2,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { Project } from 'src/project/project.types';
 import { Team } from 'src/team/team.types';
 import { User } from 'src/user/user.type';
-import { Workspace } from 'src/workspace/workspace.type';
+import { Workspace, WorkspaceMember } from 'src/workspace/workspace.type';
 
 @ObjectType()
 export class Stream {
@@ -53,8 +53,8 @@ export class StreamMembers {
   role: string;
 
   // Relations
-  @Field(() => User)
-  user: User;
+  @Field(() => WorkspaceMember)
+  User: WorkspaceMember;
 
   @Field(() => Stream)
   stream: Stream;

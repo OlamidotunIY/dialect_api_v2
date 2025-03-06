@@ -2,10 +2,15 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/prisma.services';
 import { createStreamDto } from './dto';
+import { ChannelService } from 'src/channel/channel.service';
+import { ChannelType } from '@prisma/client';
 
 @Injectable()
 export class StreamService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly channel: ChannelService,
+  ) {}
 
   async createStream(data: createStreamDto, userId: string) {
     const workspace = await this.prisma.workspace.findUnique({
@@ -24,12 +29,30 @@ export class StreamService {
       },
     });
 
-    await this.prisma.streamMembers.create({
+    const streamMember = await this.prisma.streamMembers.create({
       data: {
-        streamId: stream.id,
-        userId,
+        User: {
+          connect: {
+            userId_workspaceId: {
+              userId,
+              workspaceId: data.workspaceId,
+            },
+          },
+        },
+        stream: {
+          connect: { id: stream.id },
+        },
       },
     });
+
+    await this.channel.createChannel(
+      data.workspaceId,
+      stream.name,
+      ChannelType.GROUP,
+      stream.id,
+      streamMember.id,
+      userId,
+    );
 
     return stream;
   }
@@ -57,8 +80,8 @@ export class StreamService {
         workspaceId,
         streamMembers: {
           some: {
-            user: {
-              id: userId,
+            User: {
+              userId,
             },
           },
         },
@@ -71,7 +94,12 @@ export class StreamService {
         },
         streamMembers: {
           include: {
-            user: true,
+            User: {
+              include: {
+                user: true,
+                role: true,
+              },
+            },
           },
         },
       },
@@ -85,7 +113,7 @@ export class StreamService {
         projects: true,
         streamMembers: {
           include: {
-            user: true,
+            User: true,
           },
         },
         Teams: {
@@ -99,7 +127,7 @@ export class StreamService {
     });
   }
 
-  async addStreamMember(streamId: string, userIds: string[]) {
+  async addStreamMember(streamId: string, workspaceMemberIds: string[]) {
     const stream = await this.prisma.stream.findUnique({
       where: { id: streamId },
     });
@@ -109,9 +137,9 @@ export class StreamService {
     }
 
     // Prepare an array of data for bulk creation
-    const streamMembersData = userIds.map((userId) => ({
+    const streamMembersData = workspaceMemberIds.map((userId) => ({
       streamId: streamId,
-      userId: userId,
+      workspaceMemberId: userId,
     }));
 
     // Use Prisma's `createMany` for bulk insertion
@@ -142,7 +170,12 @@ export class StreamService {
 
   async deleteStreamMember(streamId: string, userId: string) {
     const streamMember = await this.prisma.streamMembers.findFirst({
-      where: { streamId, userId },
+      where: {
+        streamId,
+        User: {
+          userId,
+        },
+      },
     });
 
     if (!streamMember) {

@@ -3,25 +3,28 @@ model Task {
     key         String
     description String?
     projectId   String?   @db.ObjectId
-    status      String    @default("Not Started")
+    status      Status?   @relation(fields: [statusId], references: [id])
+    statusId    String?   @db.ObjectId
     dueDate     DateTime?
     priority    String    @default("Low")
     labels      String[]
     reporterId  String    @db.ObjectId
+    assigneeId  String?    @db.ObjectId
     createdAt   DateTime  @default(now())
     updatedAt   DateTime  @updatedAt
 
     // Relations
-    project        Project?         @relation(fields: [projectId], references: [id])
-    assignedUsers  TaskAssignment[]
+    assignee       User?            @relation("assigned_tasks", fields: [assigneeId], references: [id])
     dependencies   Dependency[]
-    dependents     Dependency[]     @relation("Dependents")
+    dependents     Dependency[]    @relation("Dependents")
     checklistItems ChecklistItem[]
-    subtasks       Task[]           @relation("Subtasks")
-    parent         Task?            @relation("Subtasks", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-    parentId       String?          @db.ObjectId
+    subtasks       Task[]          @relation("Subtasks")
+    parent         Task?           @relation("Subtasks", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    parentId       String?         @db.ObjectId
     Activities     Activity[]
-    reporter       User             @relation(fields: [reporterId], references: [id])
+    reporter       User            @relation("created_task", fields: [reporterId], references: [id])
+    Card           Card[]
+    Project        Project?        @relation(fields: [projectId], references: [id])
 
     // Indexes
     @@index([projectId])
@@ -37,17 +40,17 @@ model Dependency {
     dependsOnTask Task @relation("Dependents", fields: [dependsOn], references: [id])
 }
 
-model TaskAssignment {
-    id     String @id @default(auto()) @map("_id") @db.ObjectId
-    taskId String @db.ObjectId
-    userId String @db.ObjectId
+// model TaskAssignment {
+//     id     String @id @default(auto()) @map("_id") @db.ObjectId
+//     taskId String @unique @db.ObjectId
+//     userId String @db.ObjectId
 
-    // Relations
-    task Task @relation(fields: [taskId], references: [id])
-    user User @relation(fields: [userId], references: [id])
+//     // Relations
+//     task Task @relation(fields: [taskId], references: [id])
+//     user User @relation(fields: [userId], references: [id])
 
-    @@unique([taskId, userId])
-}
+//     @@unique([taskId, userId])
+// }
 
 model ChecklistItem {
     id      String  @id @default(auto()) @map("_id") @db.ObjectId
@@ -57,4 +60,23 @@ model ChecklistItem {
 
     // Relations
     task Task @relation(fields: [taskId], references: [id])
+}
+
+model Status {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    name      String
+    Column    Column[]
+    Task      Task[]
+    projectId String?  @db.ObjectId
+    Project   Project? @relation(fields: [projectId], references: [id])
+
+    @@unique([name, projectId])
+}
+
+model IssueType {
+    id      String  @id @default(auto()) @map("_id") @db.ObjectId
+    name    String
+    iconUrl String
+    Board   Board?  @relation(fields: [boardId], references: [id])
+    boardId String? @db.ObjectId
 }

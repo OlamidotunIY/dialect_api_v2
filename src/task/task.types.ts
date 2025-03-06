@@ -1,6 +1,24 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Activity } from 'src/activities/activities.types';
+import { Board } from 'src/board/board.types';
+import { Column } from 'src/board/column.types';
 import { Project } from 'src/project/project.types';
 import { User } from 'src/user/user.type';
+
+@ObjectType()
+export class Status {
+  @Field()
+  id: string;
+
+  @Field()
+  name: string;
+
+  @Field(() => [Column])
+  Column: Column[];
+
+  @Field(() => [Task])
+  Task: Task[];
+}
 
 @ObjectType()
 export class Task {
@@ -8,7 +26,7 @@ export class Task {
   id: string;
 
   @Field()
-  name: string;
+  key: string;
 
   @Field({ nullable: true })
   description?: string;
@@ -16,8 +34,8 @@ export class Task {
   @Field()
   projectId: string;
 
-  @Field()
-  status: string; // Default value: "Not Started"
+  @Field(() => Status, { nullable: true })
+  status: Status; // Default value: "Not Started"
 
   @Field({ nullable: true })
   dueDate?: Date;
@@ -35,8 +53,11 @@ export class Task {
   @Field(() => Project, { nullable: true })
   project: Project;
 
-  @Field(() => [TaskAssignment])
-  assignedUsers: TaskAssignment[];
+  @Field(() => User, { nullable: true })
+  assignee?: User;
+
+  @Field(() => User, { nullable: true })
+  reporter?: User;
 
   @Field(() => [Dependency])
   dependencies: Dependency[];
@@ -109,4 +130,60 @@ export class ChecklistItem {
   // Relations
   @Field(() => Task)
   task: Task;
+}
+
+@ObjectType()
+export class IssueType {
+  @Field()
+  id: string;
+
+  @Field()
+  name: string;
+
+  @Field()
+  iconUrl: string;
+
+  @Field(() => Board, { nullable: true })
+  Board?: Board;
+
+  @Field({ nullable: true })
+  boardId?: string;
+}
+
+@ObjectType()
+export class taskCountSummary {
+  @Field()
+  completedTasksCount: number;
+
+  @Field()
+  dueTasksCount: number;
+
+  @Field()
+  overdueTasksCount: number;
+
+  @Field()
+  newTasksCount: number;
+
+  @Field()
+  updatedTasksCount: number;
+}
+
+@ObjectType()
+export class statusOverview {
+  @Field()
+  statusName: string;
+
+  @Field()
+  taskCount: number;
+}
+@ObjectType()
+export class Summary {
+  @Field(() => taskCountSummary)
+  taskCountSummary: taskCountSummary;
+
+  @Field(() => [statusOverview])
+  statusOverview: statusOverview[];
+
+  @Field(() => [Activity])
+  activities: Activity[];
 }

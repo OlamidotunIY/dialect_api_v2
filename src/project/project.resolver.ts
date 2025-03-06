@@ -9,13 +9,13 @@ import { PermissionsGuard } from 'src/workspace/graphql-permission.guard';
 import { GraphQLErrorFilter } from 'src/filters/custom-exception.filter';
 import { ResourceType } from '@prisma/client';
 
+@UseFilters(GraphQLErrorFilter)
+@UseGuards(GraphqlAuthGuard, PermissionsGuard)
 @Resolver()
 export class ProjectResolver {
   constructor(private readonly projectService: ProjectService) {}
 
   // Mutaions
-  @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'create', value: true, resourceType: ResourceType.PROJECT },
   ])
@@ -25,8 +25,6 @@ export class ProjectResolver {
   }
 
   // Queries
-  @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'read', value: true, resourceType: ResourceType.PROJECT },
   ])
@@ -36,5 +34,13 @@ export class ProjectResolver {
     @Args('workspaceId') workspaceId: string,
   ) {
     return this.projectService.getProjects(streamName, workspaceId);
+  }
+
+  @Permissions([
+    { name: 'read', value: true, resourceType: ResourceType.PROJECT },
+  ])
+  @Query(() => Project)
+  async project(@Args('projectId') projectId: string) {
+    return this.projectService.getProjectById(projectId);
   }
 }

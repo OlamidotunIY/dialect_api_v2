@@ -20,13 +20,80 @@ export class ProjectService {
       throw new BadRequestException('Stream not found');
     }
 
-    return this.prisma.project.create({
+    const columns = [
+      {
+        name: 'To Do',
+        isInitial: true,
+      },
+      {
+        name: 'In Progress',
+        isInitial: false,
+      },
+      {
+        name: 'Done',
+        isInitial: false,
+      },
+    ];
+
+    const project = await this.prisma.project.create({
       data: {
         name: data.name,
         description: data.description,
         stream: { connect: { id: stream.id } },
+        Board: {
+          create: {
+            name: `${data.name} Board`,
+            columns: {
+              create: columns.map((column) => ({
+                name: column.name,
+                isInitial: column.isInitial,
+                status: {
+                  create: {
+                    name: column.name,
+                  },
+                },
+              })),
+            },
+          },
+        },
+        Sprints: {
+          create: {
+            name: `${data.name} Sprint`,
+            position: 1,
+          },
+        },
+      },
+      include: {
+        Board: {
+          include: {
+            columns: {
+              include: {
+                status: true,
+              },
+            },
+          },
+        },
       },
     });
+
+    await Promise.all(
+      project.Board.columns.map((column) => {
+        return this.prisma.status.update({
+          where: {
+            id: column.status.id,
+          },
+          data: {
+            Project: {
+              connect: {
+                id: project.id,
+              },
+            },
+          },
+        });
+      }),
+    );
+
+    return project;
   }
 
   async getProjects(streamName: string, workspaceId: string) {
@@ -44,7 +111,7 @@ export class ProjectService {
             name: true,
             members: {
               include: {
-                user: true,
+                User: true,
               },
             },
           },
@@ -53,19 +120,27 @@ export class ProjectService {
     });
   }
 
-  async getProjectById(streamName: string, projectName: string) {
+  async getProjectById(projectId: string) {
     return this.prisma.project.findFirst({
       where: {
-        name: projectName,
-        stream: {
-          name: streamName,
-        },
+        id: projectId,
       },
       include: {
         tasks: {
           orderBy: { createdAt: 'desc' },
           include: {
-            assignedUsers: true,
+            assignee: true,
+          },
+        },
+        team: {
+          select: {
+            id: true,
+            name: true,
+            members: {
+              include: {
+                User: true,
+              },
+            },
           },
         },
       },

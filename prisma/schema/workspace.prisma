@@ -24,7 +24,8 @@ model Workspace {
     streams         Stream[]
     roles           Role[]
     WorkspaceInvite WorkspaceInvite[]
-    Activities        Activity[]
+    Activities      Activity[]
+    channels         channel[]
 
     // Constraints
     @@unique([ownerId, name]) // Ensure name is unique within a user's workspaces
@@ -40,9 +41,10 @@ model WorkspaceMember {
     status      WorkspaceMemberStatus @default(PENDING)
 
     // Relations
-    user      User      @relation(fields: [userId], references: [id])
-    workspace Workspace @relation(fields: [workspaceId], references: [id])
-    role      Role      @relation(fields: [roleId], references: [id])
+    user      User            @relation(fields: [userId], references: [id])
+    workspace Workspace       @relation(fields: [workspaceId], references: [id])
+    role      Role            @relation(fields: [roleId], references: [id])
+    streams   streamMembers[]
 
     // Constraints
     @@unique([userId, workspaceId]) // Ensure a user can only be a member of a workspace once

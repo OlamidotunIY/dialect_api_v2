@@ -1,4 +1,4 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, ID, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsString } from 'class-validator';
 
 @InputType()
@@ -12,4 +12,7 @@ export class CreateTaskDto {
   @IsString({ message: 'projectId must be a string' })
   @IsNotEmpty({ message: 'projectId is required' })
   projectId: string;
+
+  @Field(() => ID, { nullable: true })
+  sprintId?: string;
 }

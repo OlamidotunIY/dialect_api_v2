@@ -32,26 +32,91 @@ export class TaskService {
       where: { projectId: data.projectId },
     });
 
-    const taskUniqueName = `${project.name.toUpperCase()}-${existingTasks.length + 1}`;
-    const task = await this.prisma.task.create({
-      data: {
-        key: taskUniqueName,
-        description: data.description,
-        project: {
-          connect: { id: data.projectId },
-        },
-        reporter: {
-          connect: { id: userId },
+    const taskUniqueName = `${project.name
+      .toUpperCase()
+      .replace(/\s/g, '')}-${existingTasks.length + 1}`;
+    const initialBoard = await this.prisma.board.findFirst({
+      where: {
+        projectId: data.projectId,
+      },
+      include: {
+        columns: {
+          where: { isInitial: true },
         },
       },
     });
 
-    await this.addActivity(
-      task.id,
-      `created a new task`,
-      userId,
-      ActivityType.TASK_CREATED,
-    );
+    let task: any;
+
+    if (data.sprintId) {
+      task = await this.prisma.card.create({
+        data: {
+          issue: {
+            create: {
+              key: taskUniqueName,
+              description: data.description,
+              Project: {
+                connect: { id: data.projectId },
+              },
+              reporter: {
+                connect: { id: userId },
+              },
+              status: {
+                connect: {
+                  id: initialBoard.columns[0].statusId,
+                },
+              },
+            },
+          },
+          Column: {
+            connect: {
+              id: initialBoard.columns[0].id,
+            },
+          },
+          sprint: {
+            connect: {
+              id: data.sprintId,
+            },
+          },
+        },
+      });
+    } else {
+      task = await this.prisma.card.create({
+        data: {
+          issue: {
+            create: {
+              key: taskUniqueName,
+              description: data.description,
+              Project: {
+                connect: { id: data.projectId },
+              },
+              reporter: {
+                connect: { id: userId },
+              },
+              status: {
+                connect: {
+                  id: initialBoard.columns[0].statusId,
+                },
+              },
+              Activities: {
+                create: {
+                  type: ActivityType.TASK_CREATED,
+                  description: `created a new task`,
+                  user: {
+                    connect: { id: userId },
+                  },
+                },
+              },
+            },
+          },
+          Column: {
+            connect: {
+              id: initialBoard.columns[0].id,
+            },
+          },
+        },
+      });
+    }
 
     return task;
   }
@@ -60,14 +125,16 @@ export class TaskService {
     return this.prisma.task.findMany({
       where: { projectId },
       include: {
-        assignedUsers: true,
+        assignee: true,
         dependencies: true,
         dependents: true,
         checklistItems: true,
         subtasks: true,
         parent: true,
-        project: true,
+        Project: true,
         Activities: true,
+        status: true,
+        reporter: true,
       },
     });
   }
@@ -76,13 +143,13 @@ export class TaskService {
     return this.prisma.task.findUnique({
       where: { id },
       include: {
-        assignedUsers: true,
+        assignee: true,
         dependencies: true,
         dependents: true,
         checklistItems: true,
         subtasks: true,
         parent: true,
-        project: true,
+        Project: true,
         Activities: true,
       },
     });
@@ -224,7 +291,7 @@ export class TaskService {
   async addSubtask(taskId: string, description: string, userId: string) {
     const task = await this.prisma.task.findUnique({
       where: { id: taskId },
-      include: { project: true },
+      include: { Project: true },
     });
 
     const existingSubTasks = await this.prisma.task.findMany({
@@ -265,33 +332,13 @@ export class TaskService {
       ActivityType.TASK_ASSIGN_USER,
     );
 
-    return this.prisma.taskAssignment.create({
+    return this.prisma.task.update({
+      where: { id: taskId },
       data: {
-        task: { connect: { id: taskId } },
-        user: { connect: { id: assignerId } },
+        assignee: {
+          connect: { id: userId },
+        },
       },
-    });
-  }
-
-  async unassignTask(id: string, userId: string) {
-    const taskAssignment = await this.prisma.taskAssignment.findUnique({
-      where: { id },
-      include: { user: true },
-    });
-
-    const user = await this.prisma.user.findUnique({
-      where: { id: taskAssignment.userId },
-    });
-
-    await this.addActivity(
-      id,
-      `unassigned task from "${user.fullname}"`,
-      userId,
-      ActivityType.TASK_UNASSIGN_USER,
-    );
-
-    return this.prisma.taskAssignment.delete({
-      where: { id },
     });
   }
 
@@ -307,11 +354,137 @@ export class TaskService {
       ActivityType.TASK_REASSIGN_USER,
     );
 
-    return this.prisma.taskAssignment.update({
+    return this.prisma.task.update({
       where: { id },
       data: {
-        user: { connect: { id: userId } },
+        assignee: {
+          connect: { id: userId },
+        },
       },
     });
+  }
+
+  async getSummary(projectId: string) {
+    const now = new Date();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(now.getDate() - 7);
+    const sevenDaysAhead = new Date();
+    sevenDaysAhead.setDate(now.getDate() + 7);
+
+    const completedTasksCount = await this.prisma.task.count({
+      where: {
+        projectId: projectId,
+        status: { name: 'Completed' }, // Adjust based on your status logic
+        updatedAt: {
+          gte: sevenDaysAgo,
+          lte: now,
+        },
+      },
+    });
+
+    // Tasks due in the next 7 days
+    const dueTasksCount = await this.prisma.task.count({
+      where: {
+        projectId: projectId,
+        dueDate: {
+          gte: now,
+          lte: sevenDaysAhead,
+        },
+      },
+    });
+
+    // Tasks that are overdue
+    const overdueTasksCount = await this.prisma.task.count({
+      where: {
+        projectId: projectId,
+        dueDate: {
+          lt: now,
+        },
+      },
+    });
+
+    // Task that are created in the last 7 days
+    const newTasksCount = await this.prisma.task.count({
+      where: {
+        projectId: projectId,
+        createdAt: {
+          gte: sevenDaysAgo,
+          lte: now,
+        },
+      },
+    });
+
+    // Task that are updated in the last 7 days
+    const updatedTasksCount = await this.prisma.task.count({
+      where: {
+        projectId: projectId,
+        updatedAt: {
+          gte: sevenDaysAgo,
+          lte: now,
+        },
+      },
+    });
+
+    const taskCountSummary = {
+      completedTasksCount,
+      dueTasksCount,
+      overdueTasksCount,
+      newTasksCount,
+      updatedTasksCount,
+    };
+
+    const allStatuses = await this.prisma.status.findMany({
+      where: {
+        projectId,
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    // Status overview
+    const statusOverview = await this.prisma.task.groupBy({
+      by: ['statusId'], // Group by statusId
+      where: {
+        projectId: projectId,
+      },
+      _count: {
+        statusId: true, // Count tasks for each status
+      },
+    });
+
+    // Create a map of status counts from the `groupBy` result
+    const statusCountMap = statusOverview.reduce((acc, status) => {
+      acc[status.statusId] = status._count.statusId;
+      return acc;
+    }, {});
+
+    // Enrich all statuses with the task count, defaulting to 0
+    const enrichedStatusOverview = allStatuses.map((status) => ({
+      statusName: status.name,
+      taskCount: statusCountMap[status.id] || 0,
+    }));
+
+    const activities = await this.prisma.activity.findMany({
+      where: {
+        projectId,
+        AND: {
+          task: {
+            projectId,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: 10,
+    });
+
+    return {
+      taskCountSummary,
+      statusOverview: enrichedStatusOverview,
+      activities,
+    };
   }
 }

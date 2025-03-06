@@ -11,12 +11,17 @@ model Project {
     priority    String    @default("Low")
     createdAt   DateTime  @default(now())
     updatedAt   DateTime  @updatedAt
+    boardId     String?   @db.ObjectId
 
     // Relations
-    stream   Stream     @relation(fields: [streamId], references: [id])
-    tasks    Task[]
-    team     Team?      @relation(fields: [teamId], references: [id]) // Optional relation to Team
+    stream     Stream     @relation(fields: [streamId], references: [id])
+    cards      Card[]
+    tasks      Task[]
+    team       Team?      @relation(fields: [teamId], references: [id]) // Optional relation to Team
     Activities Activity[]
+    Sprints    Sprint[]
+    Board      Board?
+    AllStatus  Status[]
 
     // Constraints
     @@unique([streamId, name]) // Ensure name is unique within a stream

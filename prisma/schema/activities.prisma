@@ -6,6 +6,7 @@ model Activity {
     projectId   String?      @db.ObjectId
     taskId      String?      @db.ObjectId
     workspaceId String?      @db.ObjectId
+    channelId   String?      @db.ObjectId
     userId      String       @db.ObjectId
     createdAt   DateTime     @default(now())
     updatedAt   DateTime     @updatedAt
@@ -16,6 +17,7 @@ model Activity {
     task      Task?      @relation(fields: [taskId], references: [id])
     workspace Workspace? @relation(fields: [workspaceId], references: [id])
     user      User       @relation(fields: [userId], references: [id])
+    channel   channel?   @relation(fields: [channelId], references: [id])
 }
 
 enum ActivityType {
@@ -57,4 +59,11 @@ enum ActivityType {
     STREAM_CREATED
     STREAM_UPDATED
     STREAM_DELETED
+    JOINED_STREAM
+    LEFT_STREAM
+    CHANNEL_CREATED
+    CHANNEL_UPDATED
+    CHANNEL_DELETED
+    JOINED_CHANNEL
+    LEFT_CHANNEL
 }

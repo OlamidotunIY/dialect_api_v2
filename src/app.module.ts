@@ -29,6 +29,10 @@ import { TeamModule } from './team/team.module';
 import { JwtService } from '@nestjs/jwt';
 import { ActivitiesService } from './activities/activities.service';
 import { ActivitiesModule } from './activities/activities.module';
+import { BoardModule } from './board/board.module';
+import { SprintModule } from './sprint/sprint.module';
+import { ChannelModule } from './channel/channel.module';
+import { ChannelService } from './channel/channel.service';
 
 export const pubSub = new RedisPubSub({
   connection: {
@@ -98,6 +102,9 @@ export const pubSub = new RedisPubSub({
     TaskModule,
     TeamModule,
     ActivitiesModule,
+    BoardModule,
+    SprintModule,
+    ChannelModule,
   ],
   controllers: [AppController],
   providers: [
@@ -114,7 +121,8 @@ export const pubSub = new RedisPubSub({
     TeamService,
     TeamResolver,
     JwtService,
-    ActivitiesService
+    ActivitiesService,
+    ChannelService
   ],
 })
 export class AppModule {}

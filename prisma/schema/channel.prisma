@@ -1,0 +1,36 @@
+model channel {
+    id          String      @id @default(auto()) @map("_id") @db.ObjectId
+    name        String
+    description String?
+    type        ChannelType
+    // messages    message[]
+    createdAt   DateTime    @default(now())
+    updatedAt   DateTime    @updatedAt
+    workspaceId String      @db.ObjectId
+
+    // relation
+    Stream    Stream           @relation(fields: [streamId], references: [id])
+    workspace Workspace        @relation(fields: [workspaceId], references: [id])
+    streamId  String           @db.ObjectId
+    members   channelMembers[]
+    Activitys  Activity[]
+
+    @@map("channels")
+}
+
+model channelMembers {
+    id             String @id @default(auto()) @map("_id") @db.ObjectId
+    channelId      String @db.ObjectId
+    streamMemberId String @db.ObjectId
+
+    // relation
+    channel channel       @relation(fields: [channelId], references: [id])
+    user    streamMembers @relation(fields: [streamMemberId], references: [id])
+
+    @@map("channelMembers")
+}
+
+enum ChannelType {
+    PRIVATE
+    GROUP
+}

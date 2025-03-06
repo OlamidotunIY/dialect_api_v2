@@ -1,0 +1,16 @@
+model Card {
+    id        String    @id @default(auto()) @map("_id") @db.ObjectId
+    issueId   String    @db.ObjectId
+    done      Boolean   @default(false)
+    sprint    Sprint?   @relation(fields: [sprintId], references: [id])
+    sprintId  String?   @db.ObjectId
+    priority  Int       @default(0)
+    dueDate   DateTime?
+    createdAt DateTime  @default(now())
+
+    issue     Task     @relation(fields: [issueId], references: [id])
+    Column    Column?  @relation(fields: [columnId], references: [id])
+    columnId  String?  @db.ObjectId
+    Project   Project? @relation(fields: [projectId], references: [id])
+    projectId String?  @db.ObjectId
+}

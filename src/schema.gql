@@ -16,9 +16,16 @@ type Activity {
 }
 
 enum ActivityType {
+  CHANNEL_CREATED
+  CHANNEL_DELETED
+  CHANNEL_UPDATED
   COMMENT_CREATED
   COMMENT_DELETED
   COMMENT_UPDATED
+  JOINED_CHANNEL
+  JOINED_STREAM
+  LEFT_CHANNEL
+  LEFT_STREAM
   PROJECT_CREATED
   PROJECT_DELETED
   PROJECT_UPDATED
@@ -61,6 +68,31 @@ enum ActivityType {
   WORKSPACE_UPDATED
 }
 
+type Board {
+  columns: [Column!]!
+  createdAt: DateTime!
+  id: String!
+  issueTypes: [IssueType!]!
+  name: String!
+  project: Project!
+  projectId: String!
+  updatedAt: DateTime!
+}
+
+type Card {
+  Column: Column
+  columnId: String
+  createdAt: DateTime!
+  done: Boolean!
+  dueDate: DateTime
+  id: String!
+  issue: Task!
+  issueId: String!
+  priority: Float!
+  sprint: Sprint
+  sprintId: String
+}
+
 type ChecklistItem {
   content: String!
   id: String!
@@ -69,9 +101,21 @@ type ChecklistItem {
   taskId: String!
 }
 
+type Column {
+  board: Board!
+  boardId: String!
+  cards: [Card!]!
+  id: String!
+  isInitial: Boolean!
+  name: String!
+  status: Status
+  statusId: String
+}
+
 input CreateTaskDto {
   description: String!
   projectId: String!
+  sprintId: ID
 }
 
 """
@@ -85,6 +129,14 @@ type Dependency {
   id: String!
   task: Task!
   taskId: String!
+}
+
+type IssueType {
+  Board: Board
+  boardId: String
+  iconUrl: String!
+  id: String!
+  name: String!
 }
 
 input LoginDto {
@@ -158,28 +210,31 @@ type Project {
   stream: Stream!
   streamId: String!
   tasks: [Task!]!
-  team: Team!
+  team: Team
   updatedAt: DateTime!
 }
 
 type Query {
   activities(userId: String!): [Activity!]!
+  getBacklogData(projectId: String!): [Card!]!
+  getBoard(projectId: String!): Board!
   getProjectActivities(projectId: String!): Activity!
   getStream(streamId: String!): Stream!
   getStreamActivities(streamId: String!): Activity!
   getStreamMembers(streamId: String!): [Stream!]!
   getStreams(workspaceId: String!): [Stream!]!
   getTaskActivities(taskId: String!): Activity!
+  getTaskById(id: String!): Task!
   getTasks(projectId: String!): [Task!]!
   getTeam(teamId: String!): Team!
   getTeams(streamId: String!): [Team!]!
   getWorkspaceActivities(workspaceId: String!): Activity!
   hello: String!
   me: User!
+  project(projectId: String!): Project!
   projects(streamName: String!, workspaceId: String!): [Project!]!
   role(id: String!): Role!
   roles(workspaceId: String!): [Role!]!
-  task(id: String!): Task!
 }
 
 input RegisterDto {
@@ -212,6 +267,33 @@ type Role {
   workspace: Workspace!
   workspaceId: String!
   workspaceMembers: [WorkspaceMember!]!
+}
+
+type Sprint {
+  cards: [Card!]!
+  createdAt: DateTime!
+  endDate: DateTime!
+  goal: String
+  id: String!
+  name: String!
+  project: Project!
+  projectId: String!
+  startDate: DateTime!
+  state: SprintState!
+  status: String!
+}
+
+enum SprintState {
+  ACTIVE
+  COMPLETED
+  INACTIVE
+}
+
+type Status {
+  Column: [Column!]!
+  Task: [Task!]!
+  id: String!
+  name: String!
 }
 
 type Stream {
@@ -248,9 +330,9 @@ type Task {
   name: String!
   parent: Task
   priority: String!
-  project: Project!
+  project: Project
   projectId: String!
-  status: String!
+  status: Status!
   subtasks: [Task!]!
   updatedAt: DateTime!
 }
@@ -355,6 +437,7 @@ input createStreamDto {
   description: String
   name: String!
   workspaceId: String!
+  workspaceMemberId: ID!
 }
 
 input createTeamDto {

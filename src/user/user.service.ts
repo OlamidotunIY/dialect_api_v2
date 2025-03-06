@@ -30,7 +30,7 @@ export class UserService {
           },
         },
         assignedTasks: true,
-        streams: true,
+        
       },
     });
   }

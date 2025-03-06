@@ -64,7 +64,9 @@ export class TeamService {
 
     const streamMember = await this.prisma.streamMembers.findFirst({
       where: {
-        userId,
+        User: {
+          userId,
+        },
         streamId: team.streamId,
       },
     });
@@ -100,7 +102,9 @@ export class TeamService {
 
     const streamMember = await this.prisma.streamMembers.findFirst({
       where: {
-        userId,
+        User: {
+          userId,
+        },
         streamId: team.streamId,
       },
     });
@@ -164,7 +168,9 @@ export class TeamService {
 
     const streamMember = await this.prisma.streamMembers.findFirst({
       where: {
-        userId,
+        User: {
+          userId,
+        },
         streamId: team.streamId,
       },
     });

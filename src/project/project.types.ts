@@ -1,4 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import { Board } from 'src/board/board.types';
+import { Sprint } from 'src/sprint/sprint.types';
 import { Stream } from 'src/stream/stream.types';
 import { Task } from 'src/task/task.types';
 import { Team } from 'src/team/team.types';
@@ -50,4 +52,10 @@ export class Project {
 
   @Field(() => Team, { nullable: true })
   team: Team;
+
+  @Field(() => Board, { nullable: true })
+  Board: Board;
+
+  @Field(() => [Sprint], { nullable: true })
+  Sprints: Sprint[];
 }

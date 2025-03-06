@@ -1,4 +1,4 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, ID, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 @InputType()
@@ -17,4 +17,7 @@ export class createStreamDto {
   @IsString({ message: 'Workspace Id must be a string' })
   @IsNotEmpty({ message: 'Workspace Id is required' })
   workspaceId: string;
+
+  @Field(() => ID)
+  workspaceMemberId: string;
 }

@@ -9,7 +9,7 @@ import {
 import { TaskService } from './task.service';
 import { UseFilters, UseGuards } from '@nestjs/common';
 import { GraphQLErrorFilter } from 'src/filters/custom-exception.filter';
-import { ChecklistItem, Dependency, Task } from './task.types';
+import { ChecklistItem, Dependency, Summary, Task } from './task.types';
 import { GraphqlAuthGuard } from 'src/auth/graphql-auth.guard';
 import { PermissionsGuard } from 'src/workspace/graphql-permission.guard';
 import { Permissions } from 'src/permission/permissions.decorator';
@@ -17,21 +17,23 @@ import { ResourceType } from '@prisma/client';
 import { CreateTaskDto } from './dto';
 import { Request } from 'express';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
-import { ProjectService } from 'src/project/project.service';
 import { pubSub } from 'src/app.module';
+import { Board } from 'src/board/board.types';
+import { BoardService } from 'src/board/board.service';
+import { Card } from 'src/board/card.types';
 
+@UseFilters(GraphQLErrorFilter)
 @Resolver()
 export class TaskResolver {
   public pubSub: RedisPubSub;
   constructor(
     private readonly taskService: TaskService,
+    private readonly boardService: BoardService,
   ) {
     this.pubSub = pubSub;
   }
 
   // Queries
-
-  @UseFilters(GraphQLErrorFilter)
   @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([{ name: 'read', value: true, resourceType: ResourceType.TASK }])
   @Query(() => [Task])
@@ -39,17 +41,35 @@ export class TaskResolver {
     return this.taskService.getTasks(projectId);
   }
 
-  @UseFilters(GraphQLErrorFilter)
   @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([{ name: 'read', value: true, resourceType: ResourceType.TASK }])
   @Query(() => Task)
-  async task(@Args('id') id: string) {
+  async getTaskById(@Args('id') id: string) {
     return this.taskService.getTask(id);
   }
 
-  // Mutations
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
+  @Permissions([{ name: 'read', value: true, resourceType: ResourceType.TASK }])
+  @Query(() => Board)
+  async getBoard(@Args('projectId') projectId: string) {
+    return this.boardService.getBoard(projectId);
+  }
 
-  @UseFilters(GraphQLErrorFilter)
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
+  @Permissions([{ name: 'read', value: true, resourceType: ResourceType.TASK }])
+  @Query(() => [Card])
+  async getBacklogData(@Args('projectId') projectId: string) {
+    return this.boardService.getBacklogData(projectId);
+  }
+
+  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
+  @Permissions([{ name: 'read', value: true, resourceType: ResourceType.TASK }])
+  @Query(() => Summary)
+  async getSummary(@Args('projectId') projectId: string) {
+    return this.taskService.getSummary(projectId);
+  }
+
+  // Mutations
   @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'create', value: true, resourceType: ResourceType.TASK },
@@ -62,7 +82,6 @@ export class TaskResolver {
     return this.taskService.createTask(data, context.req.user.sub);
   }
 
-  @UseFilters(GraphQLErrorFilter)
   @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'update', value: true, resourceType: ResourceType.TASK },
@@ -76,7 +95,6 @@ export class TaskResolver {
     return this.taskService.updateTask(id, data, context.req.user.sub);
   }
 
-  @UseFilters(GraphQLErrorFilter)
   @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'delete', value: true, resourceType: ResourceType.TASK },
@@ -89,7 +107,6 @@ export class TaskResolver {
     return this.taskService.deleteTask(id, context.req.user.sub);
   }
 
-  @UseFilters(GraphQLErrorFilter)
   @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'update', value: true, resourceType: ResourceType.TASK },
@@ -107,7 +124,6 @@ export class TaskResolver {
     );
   }
 
-  @UseFilters(GraphQLErrorFilter)
   @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'update', value: true, resourceType: ResourceType.TASK },
@@ -120,7 +136,6 @@ export class TaskResolver {
     return this.taskService.removeDependency(id, context.req.user.sub);
   }
 
-  @UseFilters(GraphQLErrorFilter)
   @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'update', value: true, resourceType: ResourceType.TASK },
@@ -138,7 +153,6 @@ export class TaskResolver {
     );
   }
 
-  @UseFilters(GraphQLErrorFilter)
   @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'update', value: true, resourceType: ResourceType.TASK },
@@ -151,7 +165,6 @@ export class TaskResolver {
     return this.taskService.removeChecklistItem(id, context.req.user.sub);
   }
 
-  @UseFilters(GraphQLErrorFilter)
   @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'update', value: true, resourceType: ResourceType.TASK },
@@ -167,7 +180,6 @@ export class TaskResolver {
     );
   }
 
-  @UseFilters(GraphQLErrorFilter)
   @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'update', value: true, resourceType: ResourceType.TASK },
@@ -183,7 +195,6 @@ export class TaskResolver {
     );
   }
 
-  @UseFilters(GraphQLErrorFilter)
   @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'update', value: true, resourceType: ResourceType.TASK },
@@ -201,7 +212,6 @@ export class TaskResolver {
     );
   }
 
-  @UseFilters(GraphQLErrorFilter)
   @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'update', value: true, resourceType: ResourceType.TASK },
@@ -219,20 +229,6 @@ export class TaskResolver {
     );
   }
 
-  @UseFilters(GraphQLErrorFilter)
-  @UseGuards(GraphqlAuthGuard, PermissionsGuard)
-  @Permissions([
-    { name: 'update', value: true, resourceType: ResourceType.TASK },
-  ])
-  @Mutation(() => Task)
-  async unAssignTask(
-    @Args('taskId') taskId: string,
-    @Context() context: { req: Request },
-  ) {
-    return this.taskService.unassignTask(taskId, context.req.user.sub);
-  }
-
-  @UseFilters(GraphQLErrorFilter)
   @UseGuards(GraphqlAuthGuard, PermissionsGuard)
   @Permissions([
     { name: 'update', value: true, resourceType: ResourceType.TASK },
@@ -252,40 +248,40 @@ export class TaskResolver {
 
   // Subscriptions
 
-//   @Subscription((returns) => Task, {
-//     nullable: true,
-//     resolve: (value) => value.newTask,
-//     filter: async (payload, variables, context) => {
-//         const { userId } = context; // Extract the user ID from context
-//         const task = payload.newTask; // Task data published to the subscription
+  //   @Subscription((returns) => Task, {
+  //     nullable: true,
+  //     resolve: (value) => value.newTask,
+  //     filter: async (payload, variables, context) => {
+  //         const { userId } = context; // Extract the user ID from context
+  //         const task = payload.newTask; // Task data published to the subscription
 
-//         // Fetch the project details
-//         const project = await this.prisma.project.findUnique({
-//           where: { id: task.projectId },
-//           include: { team: true, stream: true }, // Include team and stream details
-//         });
+  //         // Fetch the project details
+  //         const project = await this.prisma.project.findUnique({
+  //           where: { id: task.projectId },
+  //           include: { team: true, stream: true }, // Include team and stream details
+  //         });
 
-//         if (!project) {
-//           return false; // If the project doesn't exist, ignore the event
-//         }
+  //         if (!project) {
+  //           return false; // If the project doesn't exist, ignore the event
+  //         }
 
-//         // Check if the project has a team
-//         if (project.team) {
-//           // Verify if the user is a member of the team
-//           const isTeamMember = await this.prisma.teamMember.findFirst({
-//             where: { userId, teamId: project.team.id },
-//           });
-//           return Boolean(isTeamMember);
-//         }
+  //         // Check if the project has a team
+  //         if (project.team) {
+  //           // Verify if the user is a member of the team
+  //           const isTeamMember = await this.prisma.teamMember.findFirst({
+  //             where: { userId, teamId: project.team.id },
+  //           });
+  //           return Boolean(isTeamMember);
+  //         }
 
-//         // If no team is assigned, check if the user is a stream member
-//         const isStreamMember = await this.prisma.streamMember.findFirst({
-//           where: { userId, streamId: project.stream.id },
-//         });
-//         return Boolean(isStreamMember);
-//       },
-//   })
-//   newTask() {
-//     return this.pubSub.asyncIterator('newTask');
-//   }
+  //         // If no team is assigned, check if the user is a stream member
+  //         const isStreamMember = await this.prisma.streamMember.findFirst({
+  //           where: { userId, streamId: project.stream.id },
+  //         });
+  //         return Boolean(isStreamMember);
+  //       },
+  //   })
+  //   newTask() {
+  //     return this.pubSub.asyncIterator('newTask');
+  //   }
 }
