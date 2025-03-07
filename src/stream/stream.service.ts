@@ -1,16 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/prisma.services';
 import { createStreamDto } from './dto';
-import { ChannelService } from 'src/channel/channel.service';
 import { ChannelType } from '@prisma/client';
 
 @Injectable()
 export class StreamService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly channel: ChannelService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async createStream(data: createStreamDto, userId: string) {
     const workspace = await this.prisma.workspace.findUnique({
@@ -26,33 +21,33 @@ export class StreamService {
         name: data.name,
         description: data.description,
         workspace: { connect: { id: data.workspaceId } },
-      },
-    });
-
-    const streamMember = await this.prisma.streamMembers.create({
-      data: {
-        User: {
-          connect: {
-            userId_workspaceId: {
-              userId,
-              workspaceId: data.workspaceId,
+        channel: {
+          create: {
+            name: data.name,
+            type: ChannelType.GROUP,
+            members: {
+              create: {
+                user: {
+                  connect: {
+                    id: userId,
+                  },
+                },
+              },
+            },
+            workspace: {
+              connect: {
+                id: data.workspaceId,
+              },
             },
           },
         },
-        stream: {
-          connect: { id: stream.id },
+        streamMembers: {
+          create: {
+            workspaceMemberId: data.workspaceId,
+          },
         },
       },
     });
-
-    await this.channel.createChannel(
-      data.workspaceId,
-      stream.name,
-      ChannelType.GROUP,
-      stream.id,
-      streamMember.id,
-      userId,
-    );
 
     return stream;
   }
@@ -137,15 +132,141 @@ export class StreamService {
     }
 
     // Prepare an array of data for bulk creation
-    const streamMembersData = workspaceMemberIds.map((userId) => ({
+    const streamMembersData = workspaceMemberIds.map(async (userId) => ({
       streamId: streamId,
-      workspaceMemberId: userId,
+      workspaceMember: await this.prisma.workspaceMember.findFirst({
+        where: {
+          id: userId,
+        },
+      }),
+    }));
+
+    const streamChannel = await this.prisma.channel.findFirst({
+      where: {
+        streamId,
+      },
+      include: {
+        members: {
+          include: {
+            user: true,
+            channel: true,
+          },
+        },
+      },
+    });
+
+    const channelMembersData = streamChannel.members.map((member) => ({
+      userId: member.user.id,
+      workspaceId: member.channel.workspaceId,
     }));
 
     // Use Prisma's `createMany` for bulk insertion
-    await this.prisma.streamMembers.createMany({
-      data: streamMembersData,
-    });
+    for (const data of streamMembersData) {
+      await this.prisma.streamMember.create({
+        data: {
+          stream: {
+            connect: {
+              id: streamId,
+            },
+          },
+          User: {
+            connect: {
+              userId_workspaceId: {
+                userId: (await data).workspaceMember.id,
+                workspaceId: stream.workspaceId,
+              },
+            },
+          },
+        },
+      });
+
+      await this.prisma.channelMember.create({
+        data: {
+          user: {
+            connect: {
+              id: (await data).workspaceMember.userId,
+            },
+          },
+          channel: {
+            connect: {
+              id: streamChannel.id,
+            },
+          },
+          channelSetting: {
+            create: {
+              channel: {
+                connect: {
+                  id: streamChannel.id,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      for (const channelData of channelMembersData) {
+        const existingDirectChannel = await this.prisma.channel.findFirst({
+          where: {
+            workspaceId: channelData.workspaceId,
+            type: ChannelType.DIRECT,
+            members: {
+              every: {
+                OR: [
+                  {
+                    userId: channelData.userId,
+                  },
+                  {
+                    userId: (await data).workspaceMember.userId,
+                  },
+                ],
+              },
+            },
+          },
+        });
+
+        if (!existingDirectChannel) {
+          await this.prisma.channel.create({
+            data: {
+              name: `${channelData.userId}-${(await data).workspaceMember.userId}`,
+              type: ChannelType.DIRECT,
+              workspace: {
+                connect: {
+                  id: channelData.workspaceId,
+                },
+              },
+              members: {
+                create: [
+                  {
+                    user: {
+                      connect: {
+                        id: channelData.userId,
+                      },
+                    },
+                  },
+                  {
+                    user: {
+                      connect: {
+                        id: (await data).workspaceMember.userId,
+                      },
+                    },
+                  },
+                ],
+              },
+              channelSettings: {
+                create: [
+                  {
+                    userId: channelData.userId,
+                  },
+                  {
+                    userId: (await data).workspaceMember.userId,
+                  },
+                ],
+              },
+            },
+          });
+        }
+      }
+    }
 
     // Fetch and return the updated stream with members
     return await this.prisma.stream.findUnique({
@@ -157,7 +278,7 @@ export class StreamService {
   }
 
   async getStreamMembers(streamId: string) {
-    return this.prisma.streamMembers.findMany({
+    return this.prisma.streamMember.findMany({
       where: { streamId },
     });
   }
@@ -169,7 +290,7 @@ export class StreamService {
   }
 
   async deleteStreamMember(streamId: string, userId: string) {
-    const streamMember = await this.prisma.streamMembers.findFirst({
+    const streamMember = await this.prisma.streamMember.findFirst({
       where: {
         streamId,
         User: {
@@ -182,7 +303,7 @@ export class StreamService {
       throw new Error('Stream member not found');
     }
 
-    return this.prisma.streamMembers.delete({
+    return this.prisma.streamMember.delete({
       where: { id: streamMember.id },
     });
   }

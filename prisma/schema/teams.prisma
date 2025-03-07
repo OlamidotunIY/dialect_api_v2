@@ -5,6 +5,6 @@ model Team {
 
     // Relations
     stream   Stream          @relation(fields: [streamId], references: [id])
-    members  streamMembers[]
+    members  streamMember[]
     Project  Project[]
 }

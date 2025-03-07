@@ -1,0 +1,58 @@
+model Message {
+    id               String   @id @default(auto()) @map("_id") @db.ObjectId
+    text             String?
+    originalLanguage String?
+    imageUrl         String?
+    voiceMessageUrl  String?
+    isPinned         Boolean  @default(false)
+    isEdited         Boolean  @default(false)
+    isTranslating    Boolean  @default(false)
+    isTranslated     Boolean  @default(false)
+    createdAt        DateTime @default(now())
+    updatedAt        DateTime @updatedAt
+    channelId        String   @db.ObjectId
+    senderId         String   @db.ObjectId
+
+    // Relations
+    channel                 channel                   @relation(fields: [channelId], references: [id])
+    sender                  channelMember             @relation(fields: [senderId], references: [id])
+    textTranslations        textTranslation[]
+    voiceMessageTranslations voiceMessageTranslation[]
+
+    // Indexes
+    @@index([channelId])
+    @@map("messages")
+}
+
+model textTranslation {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    text      String?
+    language  String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    messageId String   @db.ObjectId
+
+    // Relations
+    message Message @relation(fields: [messageId], references: [id])
+
+    // Indexes
+    @@index([messageId])
+    @@map("textTranslations")
+}
+
+model voiceMessageTranslation {
+    id              String   @id @default(auto()) @map("_id") @db.ObjectId
+    voiceMessageUrl String?
+    language        String?
+    transcription   String?
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+    messageId       String   @db.ObjectId
+
+    // Relations
+    message Message @relation(fields: [messageId], references: [id])
+
+    // Indexes
+    @@index([messageId])
+    @@map("voiceMessageTranslations")
+}

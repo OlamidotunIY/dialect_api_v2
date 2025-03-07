@@ -44,7 +44,7 @@ model WorkspaceMember {
     user      User            @relation(fields: [userId], references: [id])
     workspace Workspace       @relation(fields: [workspaceId], references: [id])
     role      Role            @relation(fields: [roleId], references: [id])
-    streams   streamMembers[]
+    streams   streamMember[]
 
     // Constraints
     @@unique([userId, workspaceId]) // Ensure a user can only be a member of a workspace once

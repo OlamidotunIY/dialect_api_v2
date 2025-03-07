@@ -2,35 +2,56 @@ model channel {
     id          String      @id @default(auto()) @map("_id") @db.ObjectId
     name        String
     description String?
-    type        ChannelType
-    // messages    message[]
+    type        ChannelType @default(GROUP)
+    isDirect    Boolean     @default(false)
     createdAt   DateTime    @default(now())
     updatedAt   DateTime    @updatedAt
     workspaceId String      @db.ObjectId
 
     // relation
-    Stream    Stream           @relation(fields: [streamId], references: [id])
-    workspace Workspace        @relation(fields: [workspaceId], references: [id])
-    streamId  String           @db.ObjectId
-    members   channelMembers[]
-    Activitys  Activity[]
+    Stream          Stream?          @relation(fields: [streamId], references: [id])
+    workspace       Workspace        @relation(fields: [workspaceId], references: [id])
+    streamId        String?          @db.ObjectId
+    members         channelMember[]
+    Activities      Activity[]
+    Messages        Message[]
+    channelSettings channelSetting[]
 
     @@map("channels")
 }
 
-model channelMembers {
-    id             String @id @default(auto()) @map("_id") @db.ObjectId
-    channelId      String @db.ObjectId
-    streamMemberId String @db.ObjectId
+model channelMember {
+    id        String @id @default(auto()) @map("_id") @db.ObjectId
+    channelId String @db.ObjectId
+    userId    String @db.ObjectId
 
     // relation
-    channel channel       @relation(fields: [channelId], references: [id])
-    user    streamMembers @relation(fields: [streamMemberId], references: [id])
+    channel        channel          @relation(fields: [channelId], references: [id])
+    user           User             @relation(fields: [userId], references: [id])
+    Messages       Message[]
+    channelSetting channelSetting[]
 
     @@map("channelMembers")
 }
 
+model channelSetting {
+    id                        String  @id @default(auto()) @map("_id") @db.ObjectId
+    channelId                 String  @db.ObjectId
+    userId                    String  @db.ObjectId
+    isMute                    Boolean @default(false)
+    enabledAITextTranslation  Boolean @default(false)
+    enabledAIVoiceTranslation Boolean @default(false)
+    isArchived                Boolean @default(false)
+    isPinned                  Boolean @default(false)
+
+    // relation
+    channel channel       @relation(fields: [channelId], references: [id])
+    user    channelMember @relation(fields: [userId], references: [id])
+
+    @@map("channelSettings")
+}
+
 enum ChannelType {
-    PRIVATE
+    DIRECT
     GROUP
 }

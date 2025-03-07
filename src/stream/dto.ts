@@ -18,6 +18,9 @@ export class createStreamDto {
   @IsNotEmpty({ message: 'Workspace Id is required' })
   workspaceId: string;
 
-  @Field(() => ID)
+  @Field()
   workspaceMemberId: string;
+
+  @Field()
+  userId: string;
 }

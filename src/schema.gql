@@ -148,6 +148,19 @@ type LoginResponse {
   user: User
 }
 
+type Message {
+  channelId: String!
+  createdAt: DateTime!
+  id: String!
+  imageUrl: String!
+  isEdited: Boolean!
+  isPinned: Boolean!
+  text: String!
+  updatedAt: DateTime!
+  userId: String!
+  voiceMessageUrl: String!
+}
+
 type Mutation {
   addChecklistItem(description: String!, taskId: String!): ChecklistItem!
   addDependency(dependsOn: String!, taskId: String!): Dependency!
@@ -162,6 +175,7 @@ type Mutation {
   createTask(data: CreateTaskDto!): Task!
   createTeam(data: createTeamDto!): Team!
   createWorkspace(logo: Upload, name: String!): Workspace!
+  deleteMessage(messageId: String!): Message!
   deleteStream(id: String!): Stream!
   deleteTask(id: String!): Task!
   deleteTeam(teamId: String!): Team!
@@ -171,6 +185,7 @@ type Mutation {
   logout: Boolean!
   markCheckListItemAsComplete(id: String!): ChecklistItem!
   markCheckListItemAsIncomplete(id: String!): ChecklistItem!
+  pinMessage(messageId: String!): Message!
   reassignTask(assigneeId: String!, taskId: String!): Task!
   refreshToken: String!
   register(registerInput: RegisterDto!): RegisterResponse!
@@ -179,8 +194,9 @@ type Mutation {
   removeMemberFromStream(streamId: String!): Stream!
   removeMemberFromTeam(teamId: String!, userId: String!): Team!
   removeMembers(userId: String!, workspaceId: String!): Workspace!
+  sendMessage(data: sendMessageDto!, file: Upload, voiceMessage: Upload): Message!
   setDefaultWorkspace(workspaceId: String!): User!
-  unAssignTask(taskId: String!): Task!
+  updateMessage(messageId: String!, text: String!): Message!
   updateProfile(file: Upload, fullname: String!): User!
   updateRole(data: createRolesDto!, id: String!): Role!
   updateTask(data: CreateTaskDto!, id: String!): Task!
@@ -197,6 +213,8 @@ type Permission {
 }
 
 type Project {
+  Board: Board
+  Sprints: [Sprint!]
   createdAt: DateTime!
   description: String
   dueDate: DateTime
@@ -218,11 +236,13 @@ type Query {
   activities(userId: String!): [Activity!]!
   getBacklogData(projectId: String!): [Card!]!
   getBoard(projectId: String!): Board!
+  getMessages(channelId: String!): [Message!]!
   getProjectActivities(projectId: String!): Activity!
   getStream(streamId: String!): Stream!
   getStreamActivities(streamId: String!): Activity!
   getStreamMembers(streamId: String!): [Stream!]!
   getStreams(workspaceId: String!): [Stream!]!
+  getSummary(projectId: String!): Summary!
   getTaskActivities(taskId: String!): Activity!
   getTaskById(id: String!): Task!
   getTasks(projectId: String!): [Task!]!
@@ -310,16 +330,22 @@ type Stream {
 }
 
 type StreamMembers {
+  User: WorkspaceMember!
   id: String!
   role: String!
   stream: Stream!
   streamId: String!
-  user: User!
   userId: String!
 }
 
+type Summary {
+  activities: [Activity!]!
+  statusOverview: [statusOverview!]!
+  taskCountSummary: taskCountSummary!
+}
+
 type Task {
-  assignedUsers: [TaskAssignment!]!
+  assignee: User
   checklistItems: [ChecklistItem!]!
   createdAt: DateTime!
   dependencies: [Dependency!]!
@@ -327,22 +353,15 @@ type Task {
   description: String
   dueDate: DateTime
   id: ID
-  name: String!
+  key: String!
   parent: Task
   priority: String!
   project: Project
   projectId: String!
-  status: Status!
+  reporter: User
+  status: Status
   subtasks: [Task!]!
   updatedAt: DateTime!
-}
-
-type TaskAssignment {
-  id: String!
-  task: Task!
-  taskId: String!
-  user: User!
-  userId: String!
 }
 
 type Team {
@@ -357,6 +376,8 @@ type Team {
 scalar Upload
 
 type User {
+  activities: [Activity!]
+  assignedTasks: [Task!]
   createdAt: DateTime
   defaultWorkspaceId: String
   email: String!
@@ -436,8 +457,9 @@ input createRolesDto {
 input createStreamDto {
   description: String
   name: String!
+  userId: String!
   workspaceId: String!
-  workspaceMemberId: ID!
+  workspaceMemberId: String!
 }
 
 input createTeamDto {
@@ -449,4 +471,24 @@ input createTeamDto {
 input inviteMembersDto {
   userEmails: [String!]!
   workspaceId: String!
+}
+
+input sendMessageDto {
+  channelId: String
+  isEdited: Boolean!
+  isPinned: Boolean!
+  text: String!
+}
+
+type statusOverview {
+  statusName: String!
+  taskCount: Float!
+}
+
+type taskCountSummary {
+  completedTasksCount: Float!
+  dueTasksCount: Float!
+  newTasksCount: Float!
+  overdueTasksCount: Float!
+  updatedTasksCount: Float!
 }

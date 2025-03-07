@@ -33,6 +33,12 @@ import { BoardModule } from './board/board.module';
 import { SprintModule } from './sprint/sprint.module';
 import { ChannelModule } from './channel/channel.module';
 import { ChannelService } from './channel/channel.service';
+import { MessageModule } from './message/message.module';
+import { TranslationModule } from './translation/translation.module';
+import { HttpService } from '@nestjs/axios';
+import { MessageService } from './message/message.service';
+import { GlobalHttpModule } from './GlobalHttpModule';
+import { TranslationService } from './translation/translation.service';
 
 export const pubSub = new RedisPubSub({
   connection: {
@@ -47,6 +53,7 @@ export const pubSub = new RedisPubSub({
 
 @Module({
   imports: [
+    GlobalHttpModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
       serveRoot: '/',
@@ -105,6 +112,8 @@ export const pubSub = new RedisPubSub({
     BoardModule,
     SprintModule,
     ChannelModule,
+    MessageModule,
+    TranslationModule,
   ],
   controllers: [AppController],
   providers: [
@@ -122,7 +131,9 @@ export const pubSub = new RedisPubSub({
     TeamResolver,
     JwtService,
     ActivitiesService,
-    ChannelService
+    ChannelService,
+    MessageService,
+    TranslationService
   ],
 })
 export class AppModule {}

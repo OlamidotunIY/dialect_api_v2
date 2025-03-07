@@ -62,7 +62,7 @@ export class TeamService {
       throw new BadRequestException('Team not found');
     }
 
-    const streamMember = await this.prisma.streamMembers.findFirst({
+    const streamMember = await this.prisma.streamMember.findFirst({
       where: {
         User: {
           userId,
@@ -100,7 +100,7 @@ export class TeamService {
       throw new BadRequestException('Team not found');
     }
 
-    const streamMember = await this.prisma.streamMembers.findFirst({
+    const streamMember = await this.prisma.streamMember.findFirst({
       where: {
         User: {
           userId,
@@ -166,7 +166,7 @@ export class TeamService {
       throw new BadRequestException('New Team not found');
     }
 
-    const streamMember = await this.prisma.streamMembers.findFirst({
+    const streamMember = await this.prisma.streamMember.findFirst({
       where: {
         User: {
           userId,
