@@ -7,8 +7,8 @@ import * as graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.js';
 
 const allowedOrigins = [
   'http://localhost:5173', // Your first frontend URL
-  'http://api.dialectspm.com:3500',      // Any additional URL
-  'https://thex-frontend.onrender.com', // Any additional URL
+  'http://api.dialectspm.com:3500/',      // Any additional URL
+  'https://dialect-frontend-lrifo.ondigitalocean.app', // Any additional URL
 ];
 
 async function bootstrap() {
