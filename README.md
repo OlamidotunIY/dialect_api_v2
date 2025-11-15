@@ -271,103 +271,6 @@ prisma/schema/
 
 ---
 
-## Getting Started
-
----
-
-## Getting Started
-
-### Prerequisites
-Before running the project, ensure you have the following installed:
-
-### Prerequisites
-Before running the project, ensure you have the following installed:
-
-- **Node.js** (v20 or higher)
-- **Docker & Docker Compose**
-- **PostgreSQL** (if running locally without Docker)
-- **Redis** (if running locally without Docker)
-
----
-
-### Installation
-
-#### Option 1: Docker (Recommended)
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/sambelkhyat/dialect_api_v2.git
-   cd dialect_api_v2
-   ```
-
-2. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-
-   Configure the following variables in `.env`:
-   ```env
-   DATABASE_URL="postgresql://user:password@localhost:5432/dialect"
-   JWT_SECRET="your-secret-key"
-   JWT_REFRESH_SECRET="your-refresh-secret"
-   APP_URL="http://localhost:3500"
-   REDIS_HOST="redis"
-   REDIS_PORT="6379"
-   NODE_ENV="development"
-
-   # Azure Translation (optional)
-   AZURE_BASE_URL="https://api.cognitive.microsofttranslator.com"
-   AZURE_KEY="your-azure-key"
-   AZURE_LOCATION="your-azure-region"
-
-   # Email (optional)
-   EMAIL_HOST="smtp.gmail.com"
-   EMAIL_PORT="587"
-   EMAIL_USER="your-email@gmail.com"
-   EMAIL_PASSWORD="your-app-password"
-   ```
-
-3. **Build and start containers**
-   ```bash
-   docker-compose up --build
-   ```
-
-4. **Run Prisma migrations**
-   ```bash
-   docker exec -it dialect-backend npx prisma migrate dev
-   docker exec -it dialect-backend npx prisma generate
-   ```
-
-5. **Access the application**
-   - API: `http://localhost:3500`
-   - GraphQL Playground: `http://localhost:3500/graphql`
-
-#### Option 2: Local Development (Without Docker)
-
-1. **Clone and install dependencies**
-   ```bash
-   git clone https://github.com/sambelkhyat/dialect_api_v2.git
-   cd dialect_api_v2
-   npm install
-   ```
-
-2. **Set up environment variables** (same as above)
-
-3. **Start PostgreSQL and Redis locally**
-
-4. **Run Prisma migrations**
-   ```bash
-   npx prisma migrate dev
-   npx prisma generate
-   ```
-
-5. **Start the development server**
-   ```bash
-   npm run start:dev
-   ```
-
----
-
 ## API Documentation
 
 ### GraphQL Playground
@@ -618,8 +521,8 @@ UNLICENSED - This is a public portfolio project.
 
 ## Contact
 
-**Developer**: Dotun Sambelkhyat
-**Repository**: [github.com/sambelkhyat/dialect_api_v2](https://github.com/sambelkhyat/dialect_api_v2)
+**Developer**: Olamidotun IY
+**Repository**: [github.com/OlamidotunIY/dialect_api_v2](https://github.com/OlamidotunIY/dialect_api_v2)
 **Project Type**: Full-Stack Project Management Platform (Backend)
 
 ---
