@@ -1,180 +1,627 @@
-
 # Dialect Backend V2
 
+> **A production-ready GraphQL API for a collaborative project management platform with real-time features**
+
+## 📋 Table of Contents
+- [Overview](#overview)
+- [Tech Stack](#tech-stack)
+- [Architecture & Design](#architecture--design)
+- [Implemented Features](#implemented-features)
+- [Work In Progress](#work-in-progress)
+- [Getting Started](#getting-started)
+- [API Documentation](#api-documentation)
+- [Why This Codebase](#why-this-codebase)
+
+---
+
 ## Overview
-This repository contains the project for Dialect Backend V2, which is a project management platform. This guide will walk you through installing Docker, setting up the necessary containers, and running the project locally.
+Dialect Backend V2 is a comprehensive GraphQL API backend for a project management and team collaboration platform. Built with NestJS and Prisma, it provides real-time capabilities through GraphQL subscriptions, robust authentication, fine-grained role-based access control (RBAC), and multi-workspace support. The platform enables teams to manage projects, tasks, sprints, communicate through channels, and track activities across workspaces.
 
-## Prerequisites
-Before running the project with Docker, ensure that you have the following installed on your system:
+**Key Capabilities:**
+- Multi-workspace team collaboration
+- Real-time messaging and notifications via GraphQL subscriptions
+- Granular permission system with custom roles
+- Project and task management with dependencies and checklists
+- Stream-based project organization
+- Activity tracking and audit logs
+- Multi-language translation support (Azure Cognitive Services integration)
 
-- **Docker**: Docker is used to create and manage containers for the application.
-- **Docker Compose**: Docker Compose allows you to define and run multi-container Docker applications.
+---
 
-### Install Docker
-Follow the steps below based on your operating system:
+## Tech Stack
 
-### 1. **Install Docker on Linux (Ubuntu)**
-If you're using Linux, follow these steps to install Docker.
+### Core Framework & Language
+- **NestJS** - Enterprise-grade Node.js framework with dependency injection
+- **TypeScript** - Type-safe development with full IntelliSense support
+- **GraphQL** - Flexible API with Apollo Server integration
 
-1. **Update the apt package index:**
-   ```bash
-   sudo apt-get update
-   ```
+### Database & ORM
+- **Prisma** - Next-generation TypeScript ORM with type-safe database queries
+- **PostgreSQL** - Primary database (production-ready schema design)
+- **Redis** - In-memory data store for real-time pub/sub and caching
 
-2. **Install required dependencies:**
-   ```bash
-   sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
-   ```
+### Authentication & Security
+- **JWT** - Token-based authentication with refresh token rotation
+- **bcrypt** - Secure password hashing
+- **Cookie-based** auth storage for enhanced security
 
-3. **Add Docker’s official GPG key:**
-   ```bash
-   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-   ```
+### Real-time Features
+- **graphql-redis-subscriptions** - Redis-backed GraphQL subscriptions
+- **IORedis** - High-performance Redis client
 
-4. **Set up the Docker stable repository:**
-   ```bash
-   sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-   ```
+### File Handling & Communication
+- **graphql-upload** - File upload support for avatars, attachments, and voice messages
+- **Nodemailer** - Email service for invitations and notifications
 
-5. **Update the apt package index again:**
-   ```bash
-   sudo apt-get update
-   ```
+### External Integrations
+- **Azure Cognitive Services** - Multi-language translation API integration
+- **Axios** - HTTP client for external API calls
 
-6. **Install Docker:**
-   ```bash
-   sudo apt-get install docker-ce
-   ```
+### DevOps & Infrastructure
+- **Docker & Docker Compose** - Containerized development and deployment
+- **Multi-stage Dockerfile** - Optimized production builds
 
-7. **Verify the installation:**
-   ```bash
-   sudo docker --version
-   ```
+### Code Quality & Testing
+- **Jest** - Unit and integration testing framework
+- **ESLint & Prettier** - Code formatting and linting
+- **class-validator & class-transformer** - DTO validation
 
-8. **Optional: Allow Docker commands to be run as a non-root user:**
-   ```bash
-   sudo usermod -aG docker $USER
-   ```
+---
 
-   Then log out and log back in for the changes to take effect.
+## Architecture & Design
 
-### 2. **Install Docker on macOS**
-1. **Download Docker Desktop for Mac from**: [Docker Desktop](https://www.docker.com/products/docker-desktop).
-2. **Install Docker Desktop** by following the instructions.
-3. **Verify the installation** by running the following in the terminal:
-   ```bash
-   docker --version
-   ```
+### 🏛️ **Modular Architecture**
+The codebase follows a **domain-driven design** approach with clear separation of concerns:
 
-### 3. **Install Docker on Windows**
-1. **Download Docker Desktop for Windows** from: [Docker Desktop](https://www.docker.com/products/docker-desktop).
-2. **Install Docker Desktop** by following the instructions.
-3. **Verify the installation** by running the following in the Command Prompt or PowerShell:
-   ```bash
-   docker --version
-   ```
-
-### Install Docker Compose
-Docker Compose is used to define and manage multi-container applications. To install Docker Compose:
-
-#### 1. **On Linux (Ubuntu)**
-1. **Download the latest version of Docker Compose:**
-   ```bash
-   sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-   ```
-
-2. **Set the permissions:**
-   ```bash
-   sudo chmod +x /usr/local/bin/docker-compose
-   ```
-
-3. **Verify the installation:**
-   ```bash
-   docker-compose --version
-   ```
-
-#### 2. **On macOS / Windows**
-Docker Compose comes pre-installed with Docker Desktop for macOS and Windows. Verify it by running:
-```bash
-docker-compose --version
+```
+src/
+├── auth/           # Authentication & authorization
+├── user/           # User profile management
+├── workspace/      # Multi-tenant workspace system
+├── roles/          # Custom role creation & management
+├── permission/     # Fine-grained permission system
+├── stream/         # Project stream organization
+├── project/        # Project management
+├── task/           # Task tracking with dependencies
+├── board/          # Kanban board functionality
+├── sprint/         # Sprint management (WIP)
+├── team/           # Team creation & member management
+├── channel/        # Communication channels (WIP)
+├── message/        # Real-time messaging
+├── activities/     # Activity logging & audit trail
+├── translation/    # Multi-language support
+├── email/          # Email notifications
+└── token/          # JWT token management
 ```
 
-## Running the Project Locally
+Each module is **self-contained** with:
+- Resolver (GraphQL endpoint definitions)
+- Service (business logic)
+- DTOs (input validation)
+- Types (GraphQL schema types)
+- Spec files (unit tests)
 
-Once Docker and Docker Compose are installed, you can set up the project locally by following the steps below.
+### 🔐 **Security Architecture**
+- **GraphQL Auth Guard** - JWT validation on protected routes
+- **Permissions Guard** - Resource-based access control
+- **Custom Decorators** - `@Permissions()` for declarative RBAC
+- **Token Service** - Centralized token validation and extraction
+- **Secure WebSocket** - Authentication for GraphQL subscriptions
 
-### 1. **Clone the Repository**
-Clone this repository to your local machine using the following command:
-```bash
-git clone https://github.com/yourusername/your-repo.git
-cd your-repo
+### 🗄️ **Database Design**
+Prisma schema split into logical domains:
+```
+prisma/schema/
+├── user.prisma         # User accounts & profiles
+├── workspace.prisma    # Workspace & membership
+├── role.prisma         # Custom roles
+├── permission.prisma   # Permission definitions
+├── stream.prisma       # Project streams
+├── project.prisma      # Projects
+├── task.prisma         # Tasks with dependencies
+├── boards.prisma       # Kanban boards
+├── card.prisma         # Board cards
+├── column.prisma       # Board columns
+├── sprint.prisma       # Sprint planning
+├── teams.prisma        # Teams
+├── channel.prisma      # Chat channels
+├── message.prisma      # Messages
+└── activities.prisma   # Activity logs
 ```
 
-### 2. **Build and Start Containers**
-Use Docker Compose to build and start the application.
+### 📡 **Real-time System**
+- **Redis Pub/Sub** - Distributed event broadcasting
+- **GraphQL Subscriptions** - Real-time updates to clients
+- **Retry Strategy** - Resilient Redis reconnection logic
+- **Context Injection** - User authentication in WebSocket connections
 
-1. **Build the images and start the containers:**
+---
+
+## Implemented Features
+
+### ✅ **Authentication & User Management**
+- [x] User registration with email/password
+- [x] Login with JWT token generation
+- [x] Refresh token rotation
+- [x] Secure logout (token invalidation)
+- [x] User profile management
+- [x] Avatar upload
+- [x] Default workspace selection
+
+### ✅ **Workspace Management**
+- [x] Multi-workspace support (create, update, delete)
+- [x] Workspace logo upload
+- [x] Workspace settings (team size, AI toggle, invite links)
+- [x] Member invitation system (email invites)
+- [x] Add/remove workspace members
+- [x] Workspace-level activity tracking
+
+### ✅ **Role-Based Access Control (RBAC)**
+- [x] Custom role creation per workspace
+- [x] Granular permission system (create, read, update, delete, add-members, remove-member)
+- [x] Resource-based permissions (workspace, stream, project, task, team, channel)
+- [x] Permission guards with declarative syntax
+- [x] Role assignment to users
+
+### ✅ **Stream Management**
+- [x] Create project streams within workspaces
+- [x] Add/remove stream members
+- [x] Stream deletion
+- [x] Permission-based stream access
+
+### ✅ **Project Management**
+- [x] Create projects within streams
+- [x] Fetch projects by stream
+- [x] Project-level permissions
+- [x] Project activity tracking
+
+### ✅ **Task Management**
+- [x] Create, update, delete tasks
+- [x] Task dependencies (blocking relationships)
+- [x] Checklist items for tasks
+- [x] Task assignment
+- [x] Task status tracking
+- [x] Backlog management
+- [x] Task summary/statistics
+- [x] Real-time task updates via subscriptions
+
+### ✅ **Kanban Board**
+- [x] Board creation per project
+- [x] Dynamic columns
+- [x] Card management
+- [x] Drag-and-drop card movement
+- [x] Backlog view
+
+### ✅ **Team Management**
+- [x] Create teams within streams
+- [x] Add/remove team members
+- [x] Team deletion
+- [x] Fetch teams by stream
+
+### ✅ **Messaging System**
+- [x] Send text messages
+- [x] Image attachments
+- [x] Voice message uploads
+- [x] Message editing
+- [x] Message deletion
+- [x] Pin important messages
+- [x] Fetch channel messages
+
+### ✅ **Activity Tracking**
+- [x] User activity logs
+- [x] Project-level activities
+- [x] Stream-level activities
+- [x] Workspace-level activities
+- [x] Task-level activities
+- [x] Automatic activity creation on CRUD operations
+
+### ✅ **Translation Service**
+- [x] Azure Cognitive Services integration
+- [x] Multi-language message translation
+- [x] Cached language detection
+- [x] Automatic translation storage
+
+### ✅ **Infrastructure**
+- [x] Docker containerization
+- [x] Docker Compose orchestration
+- [x] Multi-stage Docker builds
+- [x] Redis integration
+- [x] Static file serving
+- [x] Environment-based configuration
+- [x] Production/development mode toggles
+
+---
+
+## Work In Progress
+
+### 🚧 **Channel Management**
+- [ ] Create/update/delete channels
+- [ ] Channel member management
+- [ ] Public/private channel types
+- [ ] Channel notifications
+
+### 🚧 **Sprint Management**
+- [ ] Sprint creation and planning
+- [ ] Sprint backlog
+- [ ] Sprint velocity tracking
+- [ ] Burndown charts
+
+### 🚧 **Advanced Features**
+- [ ] File attachment management system
+- [ ] Real-time notifications service
+- [ ] Webhooks for external integrations
+- [ ] Advanced search and filtering
+- [ ] GraphQL subscriptions for all real-time events
+- [ ] Rate limiting and API throttling
+- [ ] Audit logs export
+- [ ] Data export functionality
+
+### 🚧 **Testing & Documentation**
+- [ ] Increase test coverage (currently partial)
+- [ ] E2E test suite
+- [ ] API documentation generation
+- [ ] Postman/Insomnia collection
+- [ ] Migration guides
+
+### 🚧 **Performance Optimization**
+- [ ] Database query optimization
+- [ ] Caching layer expansion
+- [ ] CDN integration for file uploads
+- [ ] GraphQL query complexity analysis
+
+---
+
+## Getting Started
+
+---
+
+## Getting Started
+
+### Prerequisites
+Before running the project, ensure you have the following installed:
+
+### Prerequisites
+Before running the project, ensure you have the following installed:
+
+- **Node.js** (v20 or higher)
+- **Docker & Docker Compose**
+- **PostgreSQL** (if running locally without Docker)
+- **Redis** (if running locally without Docker)
+
+---
+
+### Installation
+
+#### Option 1: Docker (Recommended)
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/sambelkhyat/dialect_api_v2.git
+   cd dialect_api_v2
+   ```
+
+2. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   ```
+
+   Configure the following variables in `.env`:
+   ```env
+   DATABASE_URL="postgresql://user:password@localhost:5432/dialect"
+   JWT_SECRET="your-secret-key"
+   JWT_REFRESH_SECRET="your-refresh-secret"
+   APP_URL="http://localhost:3500"
+   REDIS_HOST="redis"
+   REDIS_PORT="6379"
+   NODE_ENV="development"
+
+   # Azure Translation (optional)
+   AZURE_BASE_URL="https://api.cognitive.microsofttranslator.com"
+   AZURE_KEY="your-azure-key"
+   AZURE_LOCATION="your-azure-region"
+
+   # Email (optional)
+   EMAIL_HOST="smtp.gmail.com"
+   EMAIL_PORT="587"
+   EMAIL_USER="your-email@gmail.com"
+   EMAIL_PASSWORD="your-app-password"
+   ```
+
+3. **Build and start containers**
    ```bash
    docker-compose up --build
    ```
 
-   This command will:
-   - Build the Docker images from the `Dockerfile`.
-   - Start the containers as defined in `docker-compose.yml`.
-
-2. **Start containers in detached mode (optional):**
+4. **Run Prisma migrations**
    ```bash
-   docker-compose up -d
+   docker exec -it dialect-backend npx prisma migrate dev
+   docker exec -it dialect-backend npx prisma generate
    ```
 
-   This runs the containers in the background, so you can continue using the terminal.
+5. **Access the application**
+   - API: `http://localhost:3500`
+   - GraphQL Playground: `http://localhost:3500/graphql`
 
-3. **Check the status of your containers:**
+#### Option 2: Local Development (Without Docker)
+
+1. **Clone and install dependencies**
    ```bash
-   docker-compose ps
+   git clone https://github.com/sambelkhyat/dialect_api_v2.git
+   cd dialect_api_v2
+   npm install
    ```
 
-4. **Access the project:**
-   - The NestJS backend should be running on port `3500`. Visit `http://localhost:3500` to access the API.
-   - The Redis service will be running on port `6379`.
+2. **Set up environment variables** (same as above)
 
-### 3. **Stopping the Containers**
-To stop the containers, run the following command:
-```bash
-docker-compose down
-```
+3. **Start PostgreSQL and Redis locally**
 
-This will stop and remove the containers, but will keep your data volumes intact.
+4. **Run Prisma migrations**
+   ```bash
+   npx prisma migrate dev
+   npx prisma generate
+   ```
 
-To stop and remove everything (containers, networks, and volumes):
-```bash
-docker-compose down --volumes --remove-orphans
-```
-
-### 4. **Viewing Logs**
-To view the logs of the running containers, use:
-```bash
-docker-compose logs
-```
-
-For logs from a specific service (e.g., `nestjs-backend`):
-```bash
-docker-compose logs nestjs-backend
-```
-
-### 5. **Accessing Redis**
-You can access Redis via the command line or a Redis client. To access Redis from the container, run:
-```bash
-docker exec -it redis redis-cli
-```
-
-### Troubleshooting
-
-- **Docker Compose Not Found**: Make sure Docker Compose is installed correctly and accessible in your terminal.
-- **Permission Issues**: If you encounter permissions errors, try running the commands with `sudo` or ensure your user has the correct privileges for Docker.
-- **Container Not Starting**: Check the logs with `docker-compose logs` to identify potential issues.
-
-## Conclusion
-With Docker and Docker Compose, you can easily set up and run the project in a containerized environment. This allows for easier management of dependencies and environments, making it simple to develop and test the application locally.
+5. **Start the development server**
+   ```bash
+   npm run start:dev
+   ```
 
 ---
+
+## API Documentation
+
+### GraphQL Playground
+Access the interactive GraphQL Playground at `http://localhost:3500/graphql` (development mode only)
+
+### Sample Queries & Mutations
+
+#### Authentication
+```graphql
+# Register a new user
+mutation {
+  register(registerInput: {
+    email: "user@example.com"
+    password: "SecurePass123"
+    confirmPassword: "SecurePass123"
+    fullname: "John Doe"
+  }) {
+    user {
+      id
+      email
+      fullname
+    }
+  }
+}
+
+# Login
+mutation {
+  login(loginInput: {
+    email: "user@example.com"
+    password: "SecurePass123"
+  }) {
+    user {
+      id
+      email
+      fullname
+    }
+  }
+}
+```
+
+#### Workspace Management
+```graphql
+# Create workspace
+mutation {
+  createWorkspace(name: "My Workspace") {
+    id
+    name
+    createdAt
+  }
+}
+
+# Get user profile with workspaces
+query {
+  me {
+    id
+    email
+    fullname
+    workspaces {
+      id
+      name
+    }
+  }
+}
+```
+
+#### Task Management
+```graphql
+# Create a task
+mutation {
+  createTask(data: {
+    title: "Implement feature"
+    description: "Build new feature"
+    projectId: "project-id"
+    priority: HIGH
+    status: TODO
+  }) {
+    id
+    title
+    status
+    priority
+  }
+}
+
+# Subscribe to task updates
+subscription {
+  taskCreated {
+    id
+    title
+    status
+  }
+}
+```
+
+---
+
+
+## 🎯 **What I'm Proud Of**
+
+#### 1. **Clean, Scalable Architecture**
+- **Modular design**: Each feature is isolated in its own module with clear boundaries
+- **Dependency injection**: Fully leverages NestJS DI for testability and maintainability
+- **Type safety**: End-to-end TypeScript with Prisma-generated types
+- **Separation of concerns**: Resolvers handle requests, services contain business logic, DTOs validate input
+
+#### 2. **Production-Ready Patterns**
+- **Authentication & Security**: JWT with refresh tokens, secure WebSocket authentication, bcrypt password hashing
+- **RBAC System**: Fine-grained, resource-based permissions with custom roles
+- **Error Handling**: Custom exception filters for consistent error responses
+- **Environment Configuration**: Proper separation of dev/prod configs
+- **Docker Multi-stage Builds**: Optimized container images for production
+
+#### 3. **Real-time Capabilities**
+- **GraphQL Subscriptions**: Redis-backed pub/sub for horizontal scalability
+- **Resilient Connections**: Automatic retry strategy for Redis failures
+- **Authenticated WebSockets**: Secure real-time connections with token validation
+
+#### 4. **Developer Experience**
+- **Code Quality**: Prettier + ESLint for consistent formatting
+- **Testing Setup**: Jest configured for unit and E2E tests
+- **Hot Reload**: Fast development iteration with watch mode
+- **Clear Scripts**: Well-organized npm scripts for common tasks
+- **Comprehensive README**: Detailed documentation for onboarding
+
+#### 5. **Database Excellence**
+- **Schema Organization**: Prisma schema split into logical files
+- **Type-Safe Queries**: No raw SQL, all queries are type-checked
+- **Migration System**: Version-controlled database changes
+- **Lifecycle Management**: Proper connection handling with `OnModuleInit`
+
+#### 6. **Code Readability**
+- **Consistent Naming**: Clear, descriptive names for files, classes, and methods
+- **Self-Documenting**: Code structure that explains intent
+- **Focused Functions**: Small, single-responsibility methods
+- **DTOs for Validation**: Input validation separated from business logic
+
+#### 7. **Problem-Solving Approach**
+- **Azure Integration**: Third-party API integration with proper error handling
+- **File Uploads**: Handling multipart GraphQL uploads for images/voice
+- **Activity Tracking**: Automatic audit trail generation
+- **Permission System**: Complex authorization logic abstracted into decorators
+
+---
+
+## Project Structure Highlights
+
+```
+dialect_api_v2/
+├── docker-compose.yml      # Multi-service orchestration
+├── dockerfile              # Multi-stage production build
+├── prisma/
+│   └── schema/            # Modular Prisma schemas
+├── src/
+│   ├── app.module.ts      # Root module with GraphQL config
+│   ├── prisma.services.ts # Database connection service
+│   ├── GlobalHttpModule.ts # Shared HTTP client
+│   ├── filters/           # Custom exception filters
+│   ├── auth/              # JWT authentication
+│   ├── workspace/         # Multi-tenant workspaces
+│   ├── roles/             # Custom RBAC
+│   ├── permission/        # Permission guards
+│   ├── project/           # Project management
+│   ├── task/              # Task tracking
+│   ├── message/           # Real-time messaging
+│   ├── translation/       # Azure translation
+│   └── activities/        # Audit logging
+├── test/                  # E2E tests
+└── public/                # Static file serving
+```
+
+---
+
+## Docker Commands
+
+### Development
+```bash
+# Start all services
+docker-compose up
+
+# Rebuild and start
+docker-compose up --build
+
+# View logs
+docker-compose logs -f app
+
+# Access container shell
+docker exec -it dialect-backend sh
+
+# Run Prisma commands
+docker exec -it dialect-backend npx prisma studio
+docker exec -it dialect-backend npx prisma migrate dev
+```
+
+### Production
+```bash
+# Build production image
+docker build -t dialect-api:latest .
+
+# Run production container
+docker run -p 3000:3000 --env-file .env.production dialect-api:latest
+```
+
+---
+
+## Testing
+
+```bash
+# Unit tests
+npm run test
+
+# Watch mode
+npm run test:watch
+
+# Test coverage
+npm run test:cov
+
+# E2E tests
+npm run test:e2e
+```
+
+---
+
+## Scripts
+
+```bash
+npm run start          # Start production server
+npm run start:dev      # Start with hot-reload
+npm run start:debug    # Start in debug mode
+npm run build          # Build for production
+npm run format         # Format code with Prettier
+npm run lint           # Lint and fix code
+npm run test           # Run unit tests
+npm run test:e2e       # Run E2E tests
+```
+
+---
+
+## Contributing
+
+This is a portfolio project. For questions or feedback, please open an issue or contact me directly.
+
+---
+
+## License
+
+UNLICENSED - This is a public portfolio project.
+
+---
+
+## Contact
+
+**Developer**: Dotun Sambelkhyat
+**Repository**: [github.com/sambelkhyat/dialect_api_v2](https://github.com/sambelkhyat/dialect_api_v2)
+**Project Type**: Full-Stack Project Management Platform (Backend)
+
+---
+
+**Built with ❤️ using NestJS, GraphQL, Prisma, and TypeScript**
