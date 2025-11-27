@@ -381,14 +381,14 @@ type User {
   createdAt: DateTime
   defaultWorkspaceId: String
   email: String!
-  enabledAI: Boolean!
+  enabledAI: Boolean
   fullname: String!
   id: String!
   ownedWorkspaces: [Workspace!]
   password: String
   picture: String
-  preferredLanguage: String!
-  twoFactorEnabled: Boolean!
+  preferredLanguage: String
+  twoFactorEnabled: Boolean
   twoFactorSecret: String
   twoFactorSecretAnswer: String
   updatedAt: DateTime

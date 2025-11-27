@@ -23,13 +23,13 @@ export class User {
   @Field({ nullable: true })
   voice_id?: string;
 
-  @Field()
+  @Field({ nullable: true })
   enabledAI?: boolean;
 
-  @Field()
+  @Field({ nullable: true })
   preferredLanguage?: string;
 
-  @Field()
+  @Field({ nullable: true })
   twoFactorEnabled?: boolean;
 
   @Field({ nullable: true })
